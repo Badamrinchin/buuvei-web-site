@@ -483,13 +483,13 @@ button:disabled{
           <th>Өнгө</th>
           <th>Хээ</th>
           <th>Хээний өнгө</th>
-          <th>Бүртгэсэн</th>
           <th>Захиалгын хугацаа</th>
           <th>Явц</th>
           <th>Нийт төлбөр</th>
           <th>Урьдчилгаа</th>
           <th>Үлдэгдэл төлбөр</th>
           <th>Бүтэн төлбөр төлөгдсөн эсэх</th>
+          <th>Бүртгэсэн</th>
         </tr>
       </thead>
       <tbody id="ordersTableBody">
@@ -1294,7 +1294,6 @@ function renderGroupedOrders(groups) {
       `;
 
       if (idx === 0) {
-        rowHtml += `<td rowspan="${items.length}">${order.registeredBy || ""}</td>`;
         rowHtml += `<td rowspan="${items.length}">${progressHTML}</td>`;
         rowHtml += `
           <td rowspan="${items.length}">
@@ -1314,6 +1313,7 @@ function renderGroupedOrders(groups) {
               <option value="Үгүй" ${paidText === "Үгүй" ? "selected" : ""}>Үгүй</option>
             </select>
           </td>
+          <td rowspan="${items.length}">${order.registeredBy || ""}</td>
         `;
       }
 
