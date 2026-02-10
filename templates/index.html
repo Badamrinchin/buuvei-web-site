@@ -126,6 +126,18 @@ button:disabled{
   flex-wrap:wrap;
 }
 
+.form-row{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.form-row .field{
+  flex:1 1 160px;
+  margin-bottom:0;
+}
+
 #backBtn:hover{
   background:#559a0e !important;
 }
@@ -422,11 +434,6 @@ button:disabled{
     margin-bottom: 12px;
   }
 
-  .paid-options{
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .orders-btn {
     left: 10px;
     right: 10px;
@@ -483,6 +490,7 @@ button:disabled{
           <th>Өнгө</th>
           <th>Хээ</th>
           <th>Хээний өнгө</th>
+          <th>Тоо ширхэг</th>
           <th>Захиалгын хугацаа</th>
           <th>Явц</th>
           <th>Нийт төлбөр</th>
@@ -650,16 +658,18 @@ button:disabled{
     <textarea name="deliveryAddress" id="deliveryAddress" rows="3" placeholder="Хаягаа дэлгэрэнгүй бичнэ"></textarea>
   </div>
 
-  <div class="field">
-    <label>Нийт төлбөр</label>
-    <input name="totalPayment" id="totalPayment" class="money-input" inputmode="numeric" placeholder="0" readonly>
-  </div>
+  <div class="form-row">
+    <div class="field">
+      <label>Нийт төлбөр</label>
+      <input name="totalPayment" id="totalPayment" class="money-input" inputmode="numeric" placeholder="0" readonly>
+    </div>
 
-  <div class="field">
-    <label>Урьдчилгаа</label>
-    <input name="advancePayment" id="advancePayment" class="money-input" inputmode="numeric" placeholder="0">
-    <div id="balanceDisplayForm" class="balance-display"></div>
-    <input type="hidden" name="balancePayment" id="balancePayment">
+    <div class="field">
+      <label>Урьдчилгаа</label>
+      <input name="advancePayment" id="advancePayment" class="money-input" inputmode="numeric" placeholder="0">
+      <div id="balanceDisplayForm" class="balance-display"></div>
+      <input type="hidden" name="balancePayment" id="balancePayment">
+    </div>
   </div>
 
   <div class="field">
@@ -1163,6 +1173,7 @@ function groupOrders(orders) {
       order.color,
       order.pattern,
       order.patternColor,
+      order.quantity,
       order.registeredBy,
       order.deliveryDate,
       order.status,
@@ -1291,6 +1302,7 @@ function renderGroupedOrders(groups) {
         <td>${order.color || ""}</td>
         <td>${order.pattern || ""}</td>
         <td>${order.patternColor || ""}</td>
+        <td>${order.quantity || ""}</td>
       `;
 
       if (idx === 0) {
