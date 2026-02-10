@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<title>📞 Дуудлага бүртгэл</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f4f6fb;
+  padding:16px;
+}
+form{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  padding:24px;
+  border-radius:16px;
+  box-shadow:0 12px 30px rgba(15,23,42,0.08);
+  border:1px solid #eef0f6;
+}
+h2{margin-bottom:6px;color:#1f2937}
+.hint{color:#666;font-size:14px;margin-bottom:16px}
+
+.field{margin-bottom:14px}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
+input,select,button,textarea{
+  width:100%;
+  padding:12px;
+  font-size:16px;
+  border-radius:10px;
+  border:1px solid #d9dbe6;
+  background:#fff;
+}
+textarea{resize:vertical}
+input:invalid,select:invalid{border-color:#e11d48}
+input:focus,select:focus{
+  outline:none;
+  border-color:#4f46e5;
+  box-shadow:0 0 0 3px rgba(79,70,229,0.15);
+}
+
+.hidden{display:none}
+
+.order-group + .order-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.order-group::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #e5e7eb;
+  margin: 10px 0 14px;
+}
+
+.order-group:first-child::before {
+  display: none;
+}
+
+.remove-order-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.remove-order-btn:hover {
+  background: #dc2626;
+}
+
+button{
+  background:#4f46e5;
+  color:#fff;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+button:disabled{
+  background:#9ca3af;
+  cursor:not-allowed;
+}
+
+#success{
+  background:#dcfce7;
+  color:#166534;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:14px;
+  display:none;
+}
+
+#backBtn{
+  width:100%;
+  padding:12px;
+  font-size:16px;
+  border-radius:8px;
+  border:none;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#backBtn:hover{
+  background:#559a0e !important;
+}
+
+/* Orders Modal */
+.orders-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  background: #4f46e5;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 100;
+}
+
+.orders-btn:hover {
+  background: #3f3ec9;
+}
+
+#ordersModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  margin: 20px auto;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 1200px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.orders-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  justify-content: flex-end;
+}
+
+.orders-search input {
+  width: 220px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: #111;
+}
+
+.orders-search button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.orders-search button:hover {
+  background: #3f3ec9;
+}
+
+.close-modal {
+  background: #999;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  background: #777;
+}
+
+.close-modal-bottom {
+  margin-top: 16px;
+  width: 100%;
+}
+
+#ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#ordersTable thead {
+  background: #f5f5f5;
+}
+
+#ordersTable th,
+#ordersTable td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  font-size: 13px;
+}
+
+#ordersTable th {
+  font-weight: bold;
+  color: #333;
+}
+
+#ordersTable tbody tr {
+  transition: background-color 0.3s;
+}
+
+#ordersTable tbody tr.group-end td {
+  border-bottom: 2px solid #cbd5e1;
+}
+
+#ordersTable tbody tr.status-ready {
+  background: #f0f0f0;
+  color: #999;
+}
+
+#ordersTable tbody tr.status-received {
+  background: #d4edda;
+  font-weight: bold;
+  color: #155724;
+}
+
+#ordersTable tbody tr.status-inprogress {
+  background: #fff3bf;
+  color: #7a4a00;
+}
+
+#ordersTable tbody tr.status-overdue {
+  color: #b91c1c;
+}
+
+.progress-boxes {
+  display: flex;
+  gap: 2px;
+}
+
+.progress-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: #22c55e;
+  border: 1px solid #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+}
+
+.progress-box.red {
+  background: #ef4444;
+  border-color: #dc2626;
+}
+
+.progress-box.empty {
+  background: #eee;
+  color: #6b6b6b;
+  border-color: #ddd;
+  opacity: 0.95;
+}
+
+.status-select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.money-input {
+  width: 120px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.money-input[readonly] {
+  background: #f5f5f5;
+}
+
+.balance-display {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.paid-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 600px) {
+  .modal-content {
+    margin: 10px;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 95%;
+  }
+
+  .orders-btn {
+    top: 10px;
+    right: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  #ordersTable th, #ordersTable td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .progress-box {
+    width: 12px;
+    height: 12px;
+  }
+
+  .money-input {
+    width: 90px;
+  }
+
+  form {
+    padding: 14px;
+    margin: 0 4px;
+  }
+
+  input, select, button {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-header { flex-wrap: wrap; gap:8px; }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  form {
+    border-radius: 10px;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .orders-btn {
+    left: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    text-align: center;
+  }
+
+  .modal-content {
+    margin: 8px;
+    padding: 12px;
+  }
+
+  #ordersTable th, #ordersTable td {
+    font-size: 11px;
+    padding: 6px 4px;
+  }
+
+  .progress-box {
+    width: 10px;
+    height: 10px;
+    font-size: 8px;
+  }
+
+  .money-input {
+    width: 78px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="orders-btn" id="ordersBtn">📊 Захиалга</button>
+
+<div id="ordersModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Захиалгын жагсаалт</h2>
+    </div>
+    <div class="orders-search">
+      <input type="text" id="ordersSearch" placeholder="Хайх...">
+      <button type="button" id="ordersSearchBtn">Хайх</button>
+    </div>
+    <div id="ordersContainer" class="loading">Ачаалж байна...</div>
+    <div class="table-wrapper">
+    <table id="ordersTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>Утас</th>
+          <th>Төрөл</th>
+          <th>Хэмжээ</th>
+          <th>Өнгө</th>
+          <th>Хээ</th>
+          <th>Хээний өнгө</th>
+          <th>Бүртгэсэн</th>
+          <th>Захиалгын хугацаа</th>
+          <th>Явц</th>
+          <th>Нийт төлбөр</th>
+          <th>Урьдчилгаа</th>
+          <th>Үлдэгдэл төлбөр</th>
+          <th>Бүтэн төлбөр төлөгдсөн эсэх</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody">
+      </tbody>
+    </table>
+    </div>
+    <button class="close-modal close-modal-bottom" id="closeOrdersBtn">Хаах</button>
+  </div>
+</div>
+
+<form id="form">
+
+<div id="success">
+  <div>✅ Амжилттай бүртгэгдлээ</div>
+  <button type="button" id="backBtn" style="margin-top:10px; background:#65a30d;">Бүртгэлрүү буцах</button>
+</div>
+
+<div id="formFields">
+<h2>Бүүвэй брэнд - Дуудлагын бүртгэл</h2>
+<div class="hint">Жишээ: <b>88112233</b> (8 оронтой)</div>
+
+<div class="field">
+  <label>Утас</label>
+  <input name="phone" required pattern="\d{8}" maxlength="8" placeholder="8 оронтой утас">
+</div>
+
+<div class="field">
+  <label>Ангилал</label>
+  <select name="category" id="category" required>
+    <option value="">Сонгох</option>
+    <option>Нэхий олбог</option>
+    <option>Үхрийн шир</option>
+    <option>Хурганы арьс</option>
+    <option value="Захиалга">Захиалга</option>
+  </select>
+</div>
+
+<div id="orderFields" class="hidden">
+
+  <div id="orderGroups">
+    <div class="order-group">
+      <div class="field">
+        <label>Төрөл</label>
+        <select name="type" data-other="typeOther" required>
+          <option value="">Сонгох</option>
+          <option>Нэхий олбог</option>
+          <option>Суудлын бүрээс</option>
+          <option value="Бусад">Бусад</option>
+        </select>
+        <input name="typeOther" class="hidden" placeholder="Гараар бичих">
+      </div>
+
+      <div class="field">
+        <label>Хэмжээ</label>
+        <select name="size" data-other="sizeOther" required>
+          <option value="">Сонгох</option>
+          <option>45*45см</option>
+          <option>90*60см</option>
+          <option>180*60см</option>
+          <option value="Бусад">Бусад</option>
+        </select>
+        <input name="sizeOther" class="hidden" placeholder="Гараар бичих">
+      </div>
+
+      <div class="field">
+        <label>Өнгө</label>
+        <select name="color" data-other="colorOther" required>
+          <option value="">Сонгох</option>
+          <option>Цагаан</option>
+          <option>Шар</option>
+          <option>Ногоон</option>
+          <option>Бор</option>
+          <option>Саарал</option>
+          <option value="Бусад">Бусад</option>
+        </select>
+        <input name="colorOther" class="hidden" placeholder="Гараар бичих">
+      </div>
+
+      <div class="field">
+        <label>Хээ</label>
+        <select name="pattern" data-other="patternOther" required>
+          <option value="">Сонгох</option>
+          <option>Хонь</option>
+          <option>Хүннү буга</option>
+          <option>Хээгүй</option>
+          <option value="Бусад">Бусад</option>
+        </select>
+        <input name="patternOther" class="hidden" placeholder="Гараар бичих">
+      </div>
+
+      <div class="field">
+        <label>Хээний өнгө</label>
+        <select name="patternColor" data-other="patternColorOther" required>
+          <option value="">Сонгох</option>
+          <option>Цагаан</option>
+          <option>Шар</option>
+          <option>Ногоон</option>
+          <option>Бор</option>
+          <option>Саарал</option>
+          <option value="Бусад">Бусад</option>
+        </select>
+        <input name="patternColorOther" class="hidden" placeholder="Гараар бичих">
+      </div>
+
+      <div class="field">
+        <label>Тоо ширхэг</label>
+        <input name="quantity" type="number" min="1" step="1" inputmode="numeric" value="1" class="quantity-input">
+      </div>
+
+      <div class="field">
+        <label>Нэгж үнэ</label>
+        <input type="text" inputmode="numeric" class="money-input unit-price-input" placeholder="0">
+      </div>
+
+      <div class="field">
+        <label>Нийт үнэ</label>
+        <input type="text" class="money-input line-total-input" placeholder="0" readonly>
+      </div>
+
+      <div class="field">
+        <button type="button" class="remove-order-btn hidden">Нэмэлт захиалгыг устгах</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <button type="button" id="addOrderBtn">Нэмэлт захиалга</button>
+  </div>
+
+  <div class="field">
+    <label>Хүлээлгэн өгөх огноо</label>
+    <input type="date" name="deliveryDate" required>
+  </div>
+
+  <div class="field">
+    <label>Бүртгэсэн</label>
+    <select name="registeredBy" required>
+      <option value="">Сонгох</option>
+      <option>Ренчин</option>
+      <option>Даагий</option>
+      <option>Баагий</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Хүргэлтийн төрөл</label>
+    <select name="deliveryType" required>
+      <option value="">Сонгох</option>
+      <option>Дэлгүүрээс авах</option>
+      <option>Хүргэлтээр авах</option>
+    </select>
+  </div>
+
+  <div class="field hidden" id="deliveryAddressField">
+    <label>Хаяг</label>
+    <textarea name="deliveryAddress" id="deliveryAddress" rows="3" placeholder="Хаягаа дэлгэрэнгүй бичнэ"></textarea>
+  </div>
+
+  <div class="field">
+    <label>Нийт төлбөр</label>
+    <input name="totalPayment" id="totalPayment" class="money-input" inputmode="numeric" placeholder="0" readonly>
+  </div>
+
+  <div class="field">
+    <label>Урьдчилгаа</label>
+    <input name="advancePayment" id="advancePayment" class="money-input" inputmode="numeric" placeholder="0">
+    <div id="balanceDisplayForm" class="balance-display"></div>
+    <input type="hidden" name="balancePayment" id="balancePayment">
+  </div>
+
+  <div class="field">
+    <label>Бүтэн төлбөр төлөгдсөн эсэх</label>
+    <div>
+      <label style="display:inline-flex;align-items:center;gap:6px;margin-right:12px;">
+        <input type="radio" name="paid" id="paidYes" value="Тийм" required>
+        Тийм
+      </label>
+      <label style="display:inline-flex;align-items:center;gap:6px;">
+        <input type="radio" name="paid" id="paidNo" value="Үгүй" required>
+        Үгүй
+      </label>
+    </div>
+  </div>
+
+
+</div>
+
+<button id="submitBtn">Бүртгэх</button>
+</div>
+</form>
+
+<script>
+const category=document.getElementById("category");
+const orderFields=document.getElementById("orderFields");
+const orderGroups=document.getElementById("orderGroups");
+const addOrderBtn=document.getElementById("addOrderBtn");
+const form=document.getElementById("form");
+const btn=document.getElementById("submitBtn");
+const success=document.getElementById("success");
+const totalPaymentInput=document.getElementById("totalPayment");
+const advancePaymentInput=document.getElementById("advancePayment");
+const balancePaymentInput=document.getElementById("balancePayment");
+const balanceDisplayForm=document.getElementById("balanceDisplayForm");
+const paidYes=document.getElementById("paidYes");
+const paidNo=document.getElementById("paidNo");
+const deliveryTypeSelect=orderFields ? orderFields.querySelector('select[name="deliveryType"]') : null;
+const deliveryAddressField=document.getElementById("deliveryAddressField");
+const deliveryAddressInput=document.getElementById("deliveryAddress");
+
+category.onchange = () => {
+  const show = category.value === "Захиалга";
+  orderFields.classList.toggle("hidden", !show);
+
+  // set required on all selects inside orderFields (registeredBy, type, size, etc.)
+  orderFields.querySelectorAll("select").forEach(s => {
+    s.required = show;
+    if (!show) s.value = "";
+  });
+
+  // deliveryDate (input) should only be required/visible when orderFields shown
+  const delivery = orderFields.querySelector('input[name="deliveryDate"]');
+  if (delivery) {
+    delivery.required = show;
+    delivery.classList.toggle("hidden", !show);
+    if (!show) delivery.value = "";
+  }
+
+  // paid radio buttons should only be required for orders
+  [paidYes, paidNo].forEach(r => {
+    if (!r) return;
+    r.required = show;
+    if (!show) r.checked = false;
+  });
+
+  if (!show) {
+    if (totalPaymentInput) totalPaymentInput.value = "";
+    if (advancePaymentInput) advancePaymentInput.value = "";
+    if (balancePaymentInput) balancePaymentInput.value = "";
+    if (balanceDisplayForm) balanceDisplayForm.textContent = "";
+    if (paidYes) paidYes.checked = false;
+    if (paidNo) paidNo.checked = false;
+  }
+
+  // For selects that have a related "other" input, show the other input only when both
+  // orderFields are visible and the select value is "Бусад".
+  orderFields.querySelectorAll('select[data-other]').forEach(sel => {
+    updateOtherInput(sel, show);
+  });
+
+  orderFields.querySelectorAll(".order-group").forEach(group => updatePatternColorState(group));
+  updateDeliveryAddressState();
+
+  if (!show && orderGroups) {
+    while (orderGroups.children.length > 1) {
+      orderGroups.removeChild(orderGroups.lastElementChild);
+    }
+    orderGroups.querySelectorAll('select, input, textarea').forEach(el => {
+      if (el.tagName === "SELECT") el.value = "";
+      if ((el.tagName === "INPUT" || el.tagName === "TEXTAREA") && el.type !== "radio" && el.type !== "checkbox") el.value = "";
+    });
+  }
+};
+
+function updateDeliveryAddressState() {
+  if (!deliveryTypeSelect || !deliveryAddressField || !deliveryAddressInput) return;
+  const show = deliveryTypeSelect.value === "Хүргэлтээр авах";
+  deliveryAddressField.classList.toggle("hidden", !show);
+  deliveryAddressInput.required = show;
+  if (!show) deliveryAddressInput.value = "";
+}
+
+function updateOtherInput(sel, show) {
+  const group = sel.closest(".order-group") || orderFields;
+  const other = group.querySelector(`[name="${sel.dataset.other}"]`);
+  if (!other) return;
+
+  if (!show) {
+    other.classList.add("hidden");
+    other.required = false;
+    other.value = "";
+    return;
+  }
+
+  if (sel.value === "Бусад") {
+    other.classList.remove("hidden");
+    other.required = true;
+  } else {
+    other.classList.add("hidden");
+    other.required = false;
+    other.value = "";
+  }
+}
+
+function bindOtherSelect(sel) {
+  sel.addEventListener("change", () => updateOtherInput(sel, true));
+}
+
+function updatePatternColorState(group) {
+  const patternSelect = group.querySelector('select[name="pattern"]');
+  const patternColorSelect = group.querySelector('select[name="patternColor"]');
+  const patternColorOther = group.querySelector('[name="patternColorOther"]');
+  const patternColorField = patternColorSelect ? patternColorSelect.closest(".field") : null;
+  if (!patternSelect || !patternColorSelect) return;
+
+  const isNoPattern = patternSelect.value === "Хээгүй";
+  patternColorSelect.required = !isNoPattern;
+  if (patternColorField) {
+    patternColorField.classList.toggle("hidden", isNoPattern);
+  }
+
+  if (isNoPattern) {
+    patternColorSelect.value = "";
+    if (patternColorOther) {
+      patternColorOther.classList.add("hidden");
+      patternColorOther.required = false;
+      patternColorOther.value = "";
+    }
+  }
+}
+
+function bindPatternSelect(sel) {
+  sel.addEventListener("change", () => {
+    const group = sel.closest(".order-group");
+    if (group) updatePatternColorState(group);
+  });
+}
+
+function bindRemoveButton(group) {
+  const removeBtn = group.querySelector(".remove-order-btn");
+  if (!removeBtn) return;
+  removeBtn.addEventListener("click", () => {
+    if (!orderGroups || orderGroups.children.length <= 1) return;
+    orderGroups.removeChild(group);
+  });
+}
+
+orderFields.querySelectorAll("select[data-other]").forEach(bindOtherSelect);
+orderFields.querySelectorAll('select[name="pattern"]').forEach(bindPatternSelect);
+orderFields.querySelectorAll(".order-group").forEach(group => updatePatternColorState(group));
+orderFields.querySelectorAll(".order-group").forEach(bindRemoveButton);
+orderFields.querySelectorAll(".order-group").forEach(bindPriceInputs);
+
+if (addOrderBtn && orderGroups) {
+  addOrderBtn.addEventListener("click", () => {
+    const template = orderGroups.querySelector(".order-group");
+    if (!template) return;
+    const clone = template.cloneNode(true);
+    clone.querySelectorAll("select").forEach(sel => {
+      sel.value = "";
+      sel.required = true;
+    });
+    clone.querySelectorAll("input").forEach(input => {
+      if (input.type === "text" && input.name && input.name.endsWith("Other")) {
+        input.value = "";
+        input.classList.add("hidden");
+        input.required = false;
+      }
+      if (input.type === "number" && input.name === "quantity") {
+        input.value = "1";
+      }
+      if (input.classList.contains("unit-price-input") || input.classList.contains("line-total-input")) {
+        input.value = "";
+        input.classList.remove("hidden");
+        const field = input.closest(".field");
+        if (field) field.classList.remove("hidden");
+      }
+    });
+    const removeBtn = clone.querySelector(".remove-order-btn");
+    if (removeBtn) removeBtn.classList.remove("hidden");
+    clone.querySelectorAll("select[data-other]").forEach(bindOtherSelect);
+    clone.querySelectorAll('select[name="pattern"]').forEach(bindPatternSelect);
+    updatePatternColorState(clone);
+    bindPriceInputs(clone);
+    bindRemoveButton(clone);
+    orderGroups.appendChild(clone);
+    updateTotalPayment();
+  });
+}
+
+if (deliveryTypeSelect) {
+  deliveryTypeSelect.addEventListener("change", updateDeliveryAddressState);
+}
+
+form.onsubmit=async e=>{
+  e.preventDefault();
+  btn.disabled=true;
+  btn.textContent="Илгээж байна...";
+
+  const res=await fetch("/register",{method:"POST",body:new FormData(form)});
+  if(res.ok){
+    success.style.display="block";
+    document.getElementById("formFields").style.display="none";
+    form.reset();
+  }
+
+  btn.disabled=false;
+  btn.textContent="Бүртгэх";
+};
+
+document.getElementById("backBtn").onclick=()=>{
+  success.style.display="none";
+  document.getElementById("formFields").style.display="block";
+  form.reset();
+  category.value="";
+  orderFields.classList.add("hidden");
+  updateDeliveryAddressState();
+};
+
+// Orders Modal handling
+const ordersModal = document.getElementById("ordersModal");
+const ordersBtn = document.getElementById("ordersBtn");
+const closeOrdersBtn = document.getElementById("closeOrdersBtn");
+const ordersSearch = document.getElementById("ordersSearch");
+const ordersSearchBtn = document.getElementById("ordersSearchBtn");
+
+let allOrders = [];
+
+ordersBtn.onclick = () => {
+  ordersModal.style.display = "block";
+  loadOrders();
+};
+
+closeOrdersBtn.onclick = () => {
+  ordersModal.style.display = "none";
+};
+
+window.onclick = (event) => {
+  if (event.target === ordersModal) {
+    ordersModal.style.display = "none";
+  }
+};
+
+if (ordersSearchBtn) {
+  ordersSearchBtn.onclick = () => {
+    const query = (ordersSearch.value || "").trim().toLowerCase();
+    if (!query) {
+      renderOrders(allOrders);
+      return;
+    }
+    const groups = groupOrders(allOrders);
+    const filteredGroups = groups.filter(group => group.searchText.includes(query));
+    renderGroupedOrders(filteredGroups);
+  };
+}
+
+if (ordersSearch) {
+  ordersSearch.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (ordersSearchBtn) ordersSearchBtn.click();
+    }
+  });
+}
+
+function parseMoney(value) {
+  const digits = value.replace(/[^0-9]/g, "");
+  return digits ? parseInt(digits, 10) : null;
+}
+
+function formatMoney(value) {
+  if (value === null || Number.isNaN(value)) return "";
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function isPaidValue(value) {
+  if (!value) return false;
+  const normalized = value.toString().trim().toLowerCase();
+  return ["true", "1", "yes", "тийм"].includes(normalized);
+}
+
+function updateLineTotal(group) {
+  const qtyInput = group.querySelector(".quantity-input");
+  const unitInput = group.querySelector(".unit-price-input");
+  const lineInput = group.querySelector(".line-total-input");
+  if (!qtyInput || !unitInput || !lineInput) return;
+
+  const qty = parseInt(qtyInput.value || "1", 10);
+  const unit = parseMoney(unitInput.value || "");
+  if (!unit || Number.isNaN(qty)) {
+    lineInput.value = "";
+    return;
+  }
+
+  lineInput.value = formatMoney(qty * unit);
+}
+
+function updateTotalPayment() {
+  if (!orderGroups || !totalPaymentInput) return;
+  const groups = orderGroups.querySelectorAll(".order-group");
+  let sum = 0;
+  let hasValue = false;
+  groups.forEach(group => {
+    const lineInput = group.querySelector(".line-total-input");
+    if (!lineInput) return;
+    const value = parseMoney(lineInput.value || "");
+    if (value !== null) {
+      sum += value;
+      hasValue = true;
+    }
+  });
+  totalPaymentInput.value = hasValue ? formatMoney(sum) : "";
+  updateBalanceForForm();
+}
+
+function bindPriceInputs(group) {
+  const qtyInput = group.querySelector(".quantity-input");
+  const unitInput = group.querySelector(".unit-price-input");
+  if (!qtyInput || !unitInput) return;
+
+  qtyInput.addEventListener("input", () => {
+    if (!qtyInput.value) qtyInput.value = "1";
+    updateLineTotal(group);
+    updateTotalPayment();
+  });
+
+  unitInput.addEventListener("input", (event) => {
+    const value = parseMoney(event.target.value);
+    event.target.value = formatMoney(value);
+    updateLineTotal(group);
+    updateTotalPayment();
+  });
+}
+
+function updatePaidStatus(row, paidValue) {
+  const totalText = row.dataset.total || "";
+  const advanceText = row.dataset.advance || "";
+  const balanceText = row.dataset.balance || "";
+
+  const formData = new FormData();
+  formData.append("total", totalText);
+  formData.append("advance", advanceText);
+  formData.append("balance", paidValue === "Тийм" ? "0" : balanceText);
+  formData.append("paid", paidValue === "Тийм" ? "true" : "false");
+
+  fetch(`/orders/${row.dataset.row}/payment`, {
+    method: "POST",
+    body: formData
+  }).catch(() => {});
+}
+
+function updateBalanceForForm() {
+  if (!totalPaymentInput || !advancePaymentInput || !balancePaymentInput || !balanceDisplayForm) return;
+
+  const total = parseMoney(totalPaymentInput.value);
+  const advance = parseMoney(advancePaymentInput.value);
+
+  if (total !== null && advance !== null && advance >= total) {
+    if (paidYes) paidYes.checked = true;
+    if (paidNo) paidNo.checked = false;
+  }
+
+  const isPaid = paidYes && paidYes.checked;
+
+  if (isPaid) {
+    balanceDisplayForm.textContent = formatMoney(0);
+    balancePaymentInput.value = "0";
+    return;
+  }
+
+  if (total === null) {
+    balanceDisplayForm.textContent = "";
+    balancePaymentInput.value = "";
+    return;
+  }
+
+  const balance = Math.max(0, total - (advance || 0));
+  balanceDisplayForm.textContent = formatMoney(balance);
+  balancePaymentInput.value = formatMoney(balance);
+}
+
+if (totalPaymentInput && advancePaymentInput) {
+  const handleMoneyInput = (event) => {
+    const value = parseMoney(event.target.value);
+    event.target.value = formatMoney(value);
+    updateBalanceForForm();
+  };
+
+  advancePaymentInput.addEventListener("input", handleMoneyInput);
+
+  if (paidYes) paidYes.addEventListener("change", updateBalanceForForm);
+  if (paidNo) paidNo.addEventListener("change", updateBalanceForForm);
+}
+
+async function loadOrders() {
+  try {
+    const container = document.getElementById("ordersContainer");
+    const table = document.getElementById("ordersTable");
+    const tbody = document.getElementById("ordersTableBody");
+    
+    container.innerHTML = "Ачаалж байна...";
+    tbody.innerHTML = "";
+    
+    const res = await fetch("/orders");
+    const data = await res.json();
+    
+    if (!data.orders || data.orders.length === 0) {
+      container.innerHTML = "Захиалга олдсонгүй";
+      table.style.display = "none";
+      return;
+    }
+    
+    allOrders = data.orders;
+    renderOrders(allOrders);
+    
+  } catch (error) {
+    console.error("Error loading orders:", error);
+    document.getElementById("ordersContainer").innerHTML = "Алдаа: Захиалгыг ачаалж чадсангүй";
+  }
+}
+
+function buildOrderKey(order) {
+  return [
+    order.timestamp || "",
+    order.phone || "",
+    order.deliveryDate || "",
+    order.registeredBy || "",
+    order.deliveryType || ""
+  ].join("|");
+}
+
+function groupOrders(orders) {
+  const map = new Map();
+  orders.forEach(order => {
+    const key = buildOrderKey(order);
+    if (!map.has(key)) {
+      map.set(key, { key, items: [] });
+    }
+    map.get(key).items.push(order);
+  });
+
+  const groups = [];
+  map.forEach(group => {
+    const searchText = group.items.map(order => [
+      order.phone,
+      order.type,
+      order.size,
+      order.color,
+      order.pattern,
+      order.patternColor,
+      order.registeredBy,
+      order.deliveryDate,
+      order.status,
+      order.deliveryType,
+      order.deliveryAddress,
+      order.totalPayment,
+      order.advancePayment,
+      order.balancePayment,
+      order.paid
+    ].join(" ")).join(" ").toLowerCase();
+
+    group.searchText = searchText;
+    groups.push(group);
+  });
+
+  return groups;
+}
+
+function renderOrders(orders) {
+  const container = document.getElementById("ordersContainer");
+  const table = document.getElementById("ordersTable");
+  const tbody = document.getElementById("ordersTableBody");
+
+  tbody.innerHTML = "";
+
+  if (!orders || orders.length === 0) {
+    container.innerHTML = "Захиалга олдсонгүй";
+    table.style.display = "none";
+    return;
+  }
+
+  container.innerHTML = "";
+  table.style.display = "table";
+
+  const groups = groupOrders(orders);
+  renderGroupedOrders(groups);
+}
+
+function renderGroupedOrders(groups) {
+  const container = document.getElementById("ordersContainer");
+  const table = document.getElementById("ordersTable");
+  const tbody = document.getElementById("ordersTableBody");
+
+  tbody.innerHTML = "";
+
+  if (!groups || groups.length === 0) {
+    container.innerHTML = "Захиалга олдсонгүй";
+    table.style.display = "none";
+    return;
+  }
+
+  container.innerHTML = "";
+  table.style.display = "table";
+
+  let orderIndex = 1;
+  groups.forEach(group => {
+    const items = group.items;
+
+    const firstItem = items[0] || {};
+    const groupStatus = firstItem.status || "";
+    const groupDelDate = firstItem.deliveryDate || "";
+
+    // aggregate payments (only sum non-empty values)
+    const totalSum = items.reduce((sum, o) => sum + (parseMoney(o.totalPayment || "") || 0), 0);
+    const advanceSum = items.reduce((sum, o) => sum + (parseMoney(o.advancePayment || "") || 0), 0);
+    const balanceSum = items.reduce((sum, o) => sum + (parseMoney(o.balancePayment || "") || 0), 0);
+    const anyPaid = items.some(o => isPaidValue(o.paid));
+
+    const totalText = totalSum ? formatMoney(totalSum) : "";
+    const advanceText = advanceSum ? formatMoney(advanceSum) : "";
+    const balanceText = anyPaid ? "0" : (balanceSum ? formatMoney(balanceSum) : "");
+    const paidText = anyPaid ? "Тийм" : "Үгүй";
+
+    const groupDel = new Date(groupDelDate);
+    const today = new Date();
+    const groupDaysRemaining = Math.max(0, Math.ceil((groupDel - today) / (1000 * 60 * 60 * 24)));
+    const totalDays = 7;
+
+    // Create progress boxes once per group
+    let progressHTML = '<div class="progress-boxes">';
+    const visible = Math.max(0, Math.min(totalDays, groupDaysRemaining));
+    const hue = Math.round((visible / totalDays) * 120);
+    for (let i = 0; i < totalDays; i++) {
+      const label = i + 1;
+      if (i < visible) {
+        progressHTML += `<div class="progress-box" style="background:hsl(${hue},70%,45%);">${label}</div>`;
+      } else {
+        progressHTML += `<div class="progress-box empty">${label}</div>`;
+      }
+    }
+    progressHTML += '</div>';
+
+    items.forEach((order, idx) => {
+      const row = document.createElement('tr');
+      row.id = `order-row-${order.row}`;
+      row.dataset.row = order.row;
+      row.dataset.group = group.key;
+      row.dataset.overdue = groupDaysRemaining <= 0 ? "true" : "false";
+
+      if (groupStatus === "Авсан") {
+        row.classList.add("status-ready");
+      } else if (groupStatus === "Бэлэн болсон") {
+        row.classList.add("status-received");
+      } else if (groupStatus === "Хийгдэж байгаа") {
+        row.classList.add("status-inprogress");
+      }
+
+      if (groupDaysRemaining <= 0 && groupStatus !== "Авсан" && groupStatus !== "Бэлэн болсон") {
+        row.classList.add("status-overdue");
+      }
+
+      if (idx === items.length - 1) row.classList.add("group-end");
+
+      let rowHtml = "";
+      if (idx === 0) {
+        row.dataset.total = totalText;
+        row.dataset.advance = advanceText;
+        row.dataset.balance = balanceText;
+        rowHtml += `<td rowspan="${items.length}">${orderIndex}</td>`;
+        rowHtml += `<td rowspan="${items.length}">${order.phone}</td>`;
+      }
+
+      rowHtml += `
+        <td>${order.type || ""}</td>
+        <td>${order.size || ""}</td>
+        <td>${order.color || ""}</td>
+        <td>${order.pattern || ""}</td>
+        <td>${order.patternColor || ""}</td>
+      `;
+
+      if (idx === 0) {
+        rowHtml += `<td rowspan="${items.length}">${order.registeredBy || ""}</td>`;
+        rowHtml += `<td rowspan="${items.length}">${progressHTML}</td>`;
+        rowHtml += `
+          <td rowspan="${items.length}">
+            <select class="status-select" data-row="${order.row}" onchange="updateOrderStatus(this)">
+              <option value="" ${groupStatus === "" ? "selected" : ""} disabled>Сонгох</option>
+              <option value="Хийгдэж байгаа" ${groupStatus === "Хийгдэж байгаа" ? "selected" : ""}>Хийгдэж байгаа</option>
+              <option value="Бэлэн болсон" ${groupStatus === "Бэлэн болсон" ? "selected" : ""}>Бэлэн болсон</option>
+              <option value="Авсан" ${groupStatus === "Авсан" ? "selected" : ""}>Авсан</option>
+            </select>
+          </td>
+          <td rowspan="${items.length}">${totalText}</td>
+          <td rowspan="${items.length}">${advanceText}</td>
+          <td rowspan="${items.length}" class="balance-cell">${balanceText}</td>
+          <td rowspan="${items.length}">
+            <select class="status-select paid-select" data-row="${order.row}">
+              <option value="Тийм" ${paidText === "Тийм" ? "selected" : ""}>Тийм</option>
+              <option value="Үгүй" ${paidText === "Үгүй" ? "selected" : ""}>Үгүй</option>
+            </select>
+          </td>
+        `;
+      }
+
+      row.innerHTML = rowHtml;
+      tbody.appendChild(row);
+
+      if (idx === 0) {
+        const paidSelect = row.querySelector(".paid-select");
+        const balanceCell = row.querySelector(".balance-cell");
+        if (paidSelect) {
+          paidSelect.addEventListener("change", (event) => {
+            const newValue = event.target.value;
+            const newBalance = newValue === "Тийм" ? "0" : (row.dataset.balance || "");
+            if (balanceCell) balanceCell.textContent = newBalance;
+            updatePaidStatus(row, newValue);
+          });
+        }
+      }
+    });
+    orderIndex += 1;
+  });
+}
+
+async function updateOrderStatus(select) {
+  try {
+    const row = select.dataset.row;
+    const status = select.value;
+    const formData = new FormData();
+    formData.append("status", status);
+    
+    const res = await fetch(`/orders/${row}/status`, {
+      method: "POST",
+      body: formData
+    });
+    
+    if (res.ok) {
+      // Update styling for all rows in the same group
+      const rowElement = document.getElementById(`order-row-${row}`);
+      const groupKey = rowElement ? rowElement.dataset.group : "";
+      const groupRows = groupKey
+        ? document.querySelectorAll(`tr[data-group="${groupKey}"]`)
+        : [rowElement].filter(Boolean);
+
+      groupRows.forEach(el => {
+        el.classList.remove("status-ready", "status-received", "status-inprogress", "status-overdue");
+
+        if (status === "Авсан") {
+          el.classList.add("status-ready");
+        } else if (status === "Бэлэн болсон") {
+          el.classList.add("status-received");
+        } else if (status === "Хийгдэж байгаа") {
+          el.classList.add("status-inprogress");
+          const overdueFlag = el.dataset.overdue === "true";
+          if (overdueFlag) el.classList.add("status-overdue");
+        }
+      });
+    } else {
+      alert("Статус шинэчлэхээр алдаа гарлаа");
+      loadOrders(); // Reload to reset dropdown
+    }
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Статус шинэчлэхээр алдаа гарлаа");
+  }
+}
+</script>
+
+</body>
+</html>
