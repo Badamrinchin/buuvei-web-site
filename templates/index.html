@@ -94,6 +94,7 @@ button:disabled{
   border-radius:8px;
   margin-bottom:14px;
   display:none;
+  text-align:center;
 }
 
 #error{
@@ -107,6 +108,7 @@ button:disabled{
 
 #backBtn{
   width:100%;
+  max-width:260px;
   padding:12px;
   font-size:16px;
   border-radius:8px;
@@ -114,6 +116,14 @@ button:disabled{
   color:#fff;
   font-weight:bold;
   cursor:pointer;
+  margin:10px auto 0;
+  display:block;
+}
+
+.paid-options{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 #backBtn:hover{
@@ -344,6 +354,13 @@ button:disabled{
 
 /* Responsive adjustments for mobile */
 @media (max-width: 600px) {
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .modal-content {
     margin: 10px;
     padding: 16px;
@@ -375,6 +392,8 @@ button:disabled{
   form {
     padding: 14px;
     margin: 0 4px;
+    width: 100%;
+    max-width: 520px;
   }
 
   input, select, button {
@@ -401,6 +420,11 @@ button:disabled{
 
   .field {
     margin-bottom: 12px;
+  }
+
+  .paid-options{
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .orders-btn {
@@ -640,12 +664,12 @@ button:disabled{
 
   <div class="field">
     <label>Бүтэн төлбөр төлөгдсөн эсэх</label>
-    <div>
-      <label style="display:inline-flex;align-items:center;gap:6px;margin-right:12px;">
+    <div class="paid-options">
+      <label>
         <input type="radio" name="paid" id="paidYes" value="Тийм" required>
         Тийм
       </label>
-      <label style="display:inline-flex;align-items:center;gap:6px;">
+      <label>
         <input type="radio" name="paid" id="paidNo" value="Үгүй" required>
         Үгүй
       </label>
@@ -718,8 +742,10 @@ category.onchange = () => {
     updateOtherInput(sel, show);
   });
 
-  orderFields.querySelectorAll(".order-group").forEach(group => updatePatternColorState(group));
-  updateDeliveryAddressState();
+  if (show) {
+    orderFields.querySelectorAll(".order-group").forEach(group => updatePatternColorState(group));
+    updateDeliveryAddressState();
+  }
 
   if (!show && orderGroups) {
     while (orderGroups.children.length > 1) {
@@ -862,19 +888,29 @@ form.onsubmit=async e=>{
     errorBox.textContent="";
   }
 
-  const res=await fetch("/register",{method:"POST",body:new FormData(form)});
-  if(res.ok){
-    success.style.display="block";
-    document.getElementById("formFields").style.display="none";
-    form.reset();
-  } else {
-    let message = "Алдаа гарлаа";
-    try {
-      const data = await res.json();
-      if (data && data.error) message = data.error;
-    } catch (err) {
-      message = "Алдаа гарлаа";
+  try {
+    const res=await fetch("/register",{method:"POST",body:new FormData(form)});
+    if(res.ok){
+      success.style.display="block";
+      document.getElementById("formFields").style.display="none";
+      form.reset();
+    } else {
+      let message = "Алдаа гарлаа";
+      try {
+        const data = await res.json();
+        if (data && data.error) message = data.error;
+      } catch (err) {
+        message = "Алдаа гарлаа";
+      }
+      if (errorBox) {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+      } else {
+        alert(message);
+      }
     }
+  } catch (err) {
+    const message = "Сүлжээний алдаа. Дахин оролдоно уу.";
     if (errorBox) {
       errorBox.textContent = message;
       errorBox.style.display = "block";

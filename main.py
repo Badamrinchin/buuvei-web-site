@@ -261,28 +261,29 @@ async def register(
 
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-        for i in range(count):
-            is_first = i == 0
-            sheet.append_row([
-                timestamp,
-                phone,
-                category,
-                types[i] if i < len(types) else "",
-                sizes[i] if i < len(sizes) else "",
-                colors[i] if i < len(colors) else "",
-                patterns[i] if i < len(patterns) else "",
-                pattern_colors[i] if i < len(pattern_colors) else "",
-                quantities[i] if i < len(quantities) else "1",
-                deliveryDate,
-                registeredBy,
-                deliveryType,
-                "",  # status
-                totalPayment if is_first else "",
-                advancePayment if is_first else "",
-                balance_final if is_first else "",
-                paid_value if is_first else "",
-                deliveryAddress,
-            ])
+            for i in range(count):
+                is_first = i == 0
+                sheet.append_row([
+                    timestamp,
+                    phone,
+                    category,
+                    types[i] if i < len(types) else "",
+                    sizes[i] if i < len(sizes) else "",
+                    colors[i] if i < len(colors) else "",
+                    patterns[i] if i < len(patterns) else "",
+                    pattern_colors[i] if i < len(pattern_colors) else "",
+                    quantities[i] if i < len(quantities) else "1",
+                    deliveryDate,
+                    deliveryDate,  # Захиалгын хугацаа
+                    deliveryType,
+                    "",  # status
+                    totalPayment if is_first else "",
+                    advancePayment if is_first else "",
+                    balance_final if is_first else "",
+                    paid_value if is_first else "",
+                    deliveryAddress,
+                    registeredBy,
+                ])
 
         # Send email notification if it's an order
         if category == "Захиалга":
@@ -321,13 +322,15 @@ def get_orders():
         orders = []
         for i, row in enumerate(all_values[1:], start=2):  # Start from row 2 (skip header)
             if len(row) >= 10:  # Ensure row has enough columns
-                # Column mapping (new): [timestamp, phone, category, type, size, color, pattern, patternColor, quantity, deliveryDate, registeredBy, deliveryType, status, total, advance, balance, paid]
+                # Column mapping (newest): [timestamp, phone, category, type, size, color, pattern, patternColor, quantity, deliveryDate, orderDuration, deliveryType, status, total, advance, balance, paid, deliveryAddress, registeredBy]
+                # Column mapping (new): [timestamp, phone, category, type, size, color, pattern, patternColor, quantity, deliveryDate, registeredBy, deliveryType, status, total, advance, balance, paid, deliveryAddress]
                 # Column mapping (old): [timestamp, phone, category, type, size, color, pattern, patternColor, deliveryDate, registeredBy, deliveryType, status, total, advance, balance, paid]
                 category = row[2] if len(row) > 2 else ""
                 
                 if category == "Захиалга":
                     has_quantity = len(row) >= 17
                     has_address = len(row) >= 18
+                    has_registered_last = len(row) >= 19
                     idx = {
                         "timestamp": 0,
                         "phone": 1,
@@ -339,7 +342,8 @@ def get_orders():
                         "patternColor": 7,
                         "quantity": 8 if has_quantity else None,
                         "deliveryDate": 9 if has_quantity else 8,
-                        "registeredBy": 10 if has_quantity else 9,
+                        "orderDuration": 10 if has_registered_last else None,
+                        "registeredBy": 18 if has_registered_last else (10 if has_quantity else 9),
                         "deliveryType": 11 if has_quantity else 10,
                         "status": 12 if has_quantity else 11,
                         "total": 13 if has_quantity else 12,
@@ -359,7 +363,7 @@ def get_orders():
                         "patternColor": row[idx["patternColor"]] if len(row) > idx["patternColor"] else "",
                         "quantity": row[idx["quantity"]] if idx["quantity"] is not None and len(row) > idx["quantity"] else "",
                         "registeredBy": row[idx["registeredBy"]] if len(row) > idx["registeredBy"] else "",
-                        "deliveryDate": row[idx["deliveryDate"]] if len(row) > idx["deliveryDate"] else "",
+                        "deliveryDate": row[idx["orderDuration"]] if idx["orderDuration"] is not None and len(row) > idx["orderDuration"] else (row[idx["deliveryDate"]] if len(row) > idx["deliveryDate"] else ""),
                         "deliveryType": row[idx["deliveryType"]] if len(row) > idx["deliveryType"] else "",
                         "status": row[idx["status"]] if len(row) > idx["status"] else "",
                         "totalPayment": row[idx["total"]] if len(row) > idx["total"] else "",
