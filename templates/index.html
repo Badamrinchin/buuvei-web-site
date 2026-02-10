@@ -138,6 +138,10 @@ button:disabled{
   margin-bottom:0;
 }
 
+.form-row .money-input{
+  width:100%;
+}
+
 #backBtn:hover{
   background:#559a0e !important;
 }
@@ -606,7 +610,7 @@ button:disabled{
 
       <div class="field">
         <label>Тоо ширхэг</label>
-        <input name="quantity" type="number" min="1" step="1" inputmode="numeric" value="1" class="quantity-input">
+        <input name="quantity" type="number" min="0" step="1" inputmode="numeric" value="0" class="quantity-input">
       </div>
 
       <div class="field">
@@ -863,7 +867,7 @@ if (addOrderBtn && orderGroups) {
         input.required = false;
       }
       if (input.type === "number" && input.name === "quantity") {
-        input.value = "1";
+        input.value = "0";
       }
       if (input.classList.contains("unit-price-input") || input.classList.contains("line-total-input")) {
         input.value = "";
@@ -1010,7 +1014,7 @@ function updateLineTotal(group) {
   const lineInput = group.querySelector(".line-total-input");
   if (!qtyInput || !unitInput || !lineInput) return;
 
-  const qty = parseInt(qtyInput.value || "1", 10);
+  const qty = parseInt(qtyInput.value || "0", 10);
   const unit = parseMoney(unitInput.value || "");
   if (!unit || Number.isNaN(qty)) {
     lineInput.value = "";
@@ -1043,8 +1047,17 @@ function bindPriceInputs(group) {
   const unitInput = group.querySelector(".unit-price-input");
   if (!qtyInput || !unitInput) return;
 
+  qtyInput.addEventListener("focus", () => {
+    if (qtyInput.value === "0") qtyInput.value = "";
+  });
+
+  qtyInput.addEventListener("blur", () => {
+    if (qtyInput.value === "") qtyInput.value = "0";
+    updateLineTotal(group);
+    updateTotalPayment();
+  });
+
   qtyInput.addEventListener("input", () => {
-    if (!qtyInput.value) qtyInput.value = "1";
     updateLineTotal(group);
     updateTotalPayment();
   });
