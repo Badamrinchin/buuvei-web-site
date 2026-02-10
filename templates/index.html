@@ -23,38 +23,6 @@ form{
 h2{margin-bottom:6px;color:#1f2937}
 .hint{color:#666;font-size:14px;margin-bottom:16px}
 
-.auth-card{
-  max-width:520px;
-  margin:16px auto 12px;
-  background:#fff;
-  padding:20px;
-  border-radius:16px;
-  box-shadow:0 12px 30px rgba(15,23,42,0.08);
-  border:1px solid #eef0f6;
-}
-
-.auth-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.auth-actions button{
-  flex:1 1 140px;
-}
-
-.auth-status{
-  margin-top:10px;
-  font-size:13px;
-  color:#334155;
-}
-
-#authRequired{
-  margin-bottom:14px;
-  color:#b91c1c;
-  font-weight:600;
-}
-
 .field{margin-bottom:14px}
 label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
 input,select,button,textarea{
@@ -506,26 +474,6 @@ button:disabled{
 
 <button class="orders-btn" id="ordersBtn">📊 Захиалга</button>
 
-<div class="auth-card" id="authSection">
-  <h2>Нэвтрэх</h2>
-  <div class="field">
-    <label>Имэйл</label>
-    <input type="email" id="authEmail" placeholder="email@example.com" autocomplete="email">
-  </div>
-  <div class="field">
-    <label>Нууц үг</label>
-    <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
-  </div>
-  <div class="auth-actions" id="authActions">
-    <button type="button" id="signupBtn">Бүртгүүлэх</button>
-    <button type="button" id="loginBtn">Нэвтрэх</button>
-  </div>
-  <div class="auth-actions hidden" id="logoutActions">
-    <button type="button" id="logoutBtn">Гарах</button>
-  </div>
-  <div class="auth-status" id="authStatus"></div>
-</div>
-
 <div id="ordersModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -573,8 +521,6 @@ button:disabled{
 </div>
 
 <div id="error"></div>
-
-<div id="authRequired" class="hidden">Нэвтэрч байж бүртгэл хийх боломжтой.</div>
 
 <div id="formFields">
 <h2>Бүүвэй брэнд - Дуудлагын бүртгэл</h2>
@@ -752,34 +698,15 @@ button:disabled{
 </div>
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient = window.supabase
-  ? window.supabase.createClient(
-      "https://PROJECT_ID.supabase.co",
-      "PUBLIC_ANON_KEY"
-    )
-  : null;
-
 const category=document.getElementById("category");
 const orderFields=document.getElementById("orderFields");
 const orderGroups=document.getElementById("orderGroups");
 const addOrderBtn=document.getElementById("addOrderBtn");
 const form=document.getElementById("form");
-const formFields=document.getElementById("formFields");
-const ordersBtn=document.getElementById("ordersBtn");
 const btn=document.getElementById("submitBtn");
 const success=document.getElementById("success");
 const errorBox=document.getElementById("error");
-const authEmail=document.getElementById("authEmail");
-const authPassword=document.getElementById("authPassword");
-const authStatus=document.getElementById("authStatus");
-const authActions=document.getElementById("authActions");
-const logoutActions=document.getElementById("logoutActions");
-const authRequired=document.getElementById("authRequired");
-const signupBtn=document.getElementById("signupBtn");
-const loginBtn=document.getElementById("loginBtn");
-const logoutBtn=document.getElementById("logoutBtn");
 const totalPaymentInput=document.getElementById("totalPayment");
 const advancePaymentInput=document.getElementById("advancePayment");
 const balancePaymentInput=document.getElementById("balancePayment");
@@ -789,65 +716,6 @@ const paidNo=document.getElementById("paidNo");
 const deliveryTypeSelect=orderFields ? orderFields.querySelector('select[name="deliveryType"]') : null;
 const deliveryAddressField=document.getElementById("deliveryAddressField");
 const deliveryAddressInput=document.getElementById("deliveryAddress");
-
-function setAuthUI(session) {
-  const isAuthed = !!session;
-  if (authActions) authActions.classList.toggle("hidden", isAuthed);
-  if (logoutActions) logoutActions.classList.toggle("hidden", !isAuthed);
-  if (authRequired) authRequired.classList.toggle("hidden", isAuthed);
-  if (form && formFields) formFields.classList.toggle("hidden", !isAuthed);
-  if (ordersBtn) ordersBtn.classList.toggle("hidden", !isAuthed);
-  if (authStatus) {
-    authStatus.textContent = isAuthed
-      ? `Нэвтэрсэн: ${session.user.email}`
-      : "Имэйлээр нэвтэрч ашиглана";
-  }
-}
-
-async function initAuth() {
-  if (!supabaseClient) return;
-  const { data } = await supabaseClient.auth.getSession();
-  setAuthUI(data.session);
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    setAuthUI(session);
-  });
-}
-
-if (signupBtn && loginBtn && logoutBtn && supabaseClient) {
-  signupBtn.addEventListener("click", async () => {
-    if (!authEmail || !authPassword) return;
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    if (!email || !password) {
-      if (authStatus) authStatus.textContent = "Имэйл болон нууц үг оруулна уу";
-      return;
-    }
-    const { error } = await supabaseClient.auth.signUp({ email, password });
-    if (authStatus) {
-      authStatus.textContent = error
-        ? error.message
-        : "Имэйл рүү баталгаажуулах линк явлаа";
-    }
-  });
-
-  loginBtn.addEventListener("click", async () => {
-    if (!authEmail || !authPassword) return;
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    if (!email || !password) {
-      if (authStatus) authStatus.textContent = "Имэйл болон нууц үг оруулна уу";
-      return;
-    }
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (authStatus) authStatus.textContent = error ? error.message : "Амжилттай нэвтэрлээ";
-  });
-
-  logoutBtn.addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
-  });
-}
-
-initAuth();
 
 category.onchange = () => {
   const show = category.value === "Захиалга";
@@ -1081,6 +949,7 @@ document.getElementById("backBtn").onclick=()=>{
 
 // Orders Modal handling
 const ordersModal = document.getElementById("ordersModal");
+const ordersBtn = document.getElementById("ordersBtn");
 const closeOrdersBtn = document.getElementById("closeOrdersBtn");
 const ordersSearch = document.getElementById("ordersSearch");
 const ordersSearchBtn = document.getElementById("ordersSearchBtn");
