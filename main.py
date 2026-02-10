@@ -7,6 +7,7 @@ from google.oauth2.service_account import Credentials
 import gspread
 
 from datetime import datetime
+import json
 import re
 import time
 import os
@@ -30,7 +31,15 @@ SCOPES = [
 
 sheet = None
 try:
-    creds = Credentials.from_service_account_file("service_account.json", scopes=SCOPES)
+    service_account_json = os.getenv("SERVICE_ACCOUNT_JSON", "").strip()
+    service_account_file = os.getenv("SERVICE_ACCOUNT_FILE", "service_account.json")
+    if service_account_json:
+        creds = Credentials.from_service_account_info(
+            json.loads(service_account_json),
+            scopes=SCOPES,
+        )
+    else:
+        creds = Credentials.from_service_account_file(service_account_file, scopes=SCOPES)
     gc = gspread.authorize(creds)
     sheet = gc.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
 except Exception as e:
@@ -247,51 +256,53 @@ async def register(
         return {"status": "ignored"}
     last_submit[signature] = now
 
-    if sheet:
-        try:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-            for i in range(count):
-                is_first = i == 0
-                sheet.append_row([
-                    timestamp,
-                    phone,
-                    category,
-                    types[i] if i < len(types) else "",
-                    sizes[i] if i < len(sizes) else "",
-                    colors[i] if i < len(colors) else "",
-                    patterns[i] if i < len(patterns) else "",
-                    pattern_colors[i] if i < len(pattern_colors) else "",
-                    quantities[i] if i < len(quantities) else "1",
-                    deliveryDate,
-                    registeredBy,
-                    deliveryType,
-                    "",  # status
-                    totalPayment if is_first else "",
-                    advancePayment if is_first else "",
-                    balance_final if is_first else "",
-                    paid_value if is_first else "",
-                    deliveryAddress,
-                ])
-            
-            # Send email notification if it's an order
-            if category == "Захиалга":
-                order_data = {
-                    "phone": phone,
-                    "type": final_type,
-                    "size": final_size,
-                    "color": final_color,
-                    "pattern": final_pattern,
-                    "patternColor": final_pattern_color,
-                    "deliveryDate": deliveryDate,
-                    "registeredBy": registeredBy,
-                    "deliveryType": deliveryType,
-                    "deliveryAddress": deliveryAddress,
-                }
-                send_order_email(order_data)
-                
-        except Exception as e:
-            print(f"⚠️ Failed to write to sheet: {e}")
-            return JSONResponse({"error": "Хүснэгт рүү бичиж чадсангүй"}, status_code=500)
+    if not sheet:
+        return JSONResponse({"error": "Google Sheets холболт алга байна"}, status_code=500)
+
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        for i in range(count):
+            is_first = i == 0
+            sheet.append_row([
+                timestamp,
+                phone,
+                category,
+                types[i] if i < len(types) else "",
+                sizes[i] if i < len(sizes) else "",
+                colors[i] if i < len(colors) else "",
+                patterns[i] if i < len(patterns) else "",
+                pattern_colors[i] if i < len(pattern_colors) else "",
+                quantities[i] if i < len(quantities) else "1",
+                deliveryDate,
+                registeredBy,
+                deliveryType,
+                "",  # status
+                totalPayment if is_first else "",
+                advancePayment if is_first else "",
+                balance_final if is_first else "",
+                paid_value if is_first else "",
+                deliveryAddress,
+            ])
+
+        # Send email notification if it's an order
+        if category == "Захиалга":
+            order_data = {
+                "phone": phone,
+                "type": final_type,
+                "size": final_size,
+                "color": final_color,
+                "pattern": final_pattern,
+                "patternColor": final_pattern_color,
+                "deliveryDate": deliveryDate,
+                "registeredBy": registeredBy,
+                "deliveryType": deliveryType,
+                "deliveryAddress": deliveryAddress,
+            }
+            send_order_email(order_data)
+
+    except Exception as e:
+        print(f"⚠️ Failed to write to sheet: {e}")
+        return JSONResponse({"error": "Хүснэгт рүү бичиж чадсангүй"}, status_code=500)
 
     return {"status": "success"}
 

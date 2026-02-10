@@ -96,6 +96,15 @@ button:disabled{
   display:none;
 }
 
+#error{
+  background:#fee2e2;
+  color:#991b1b;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:14px;
+  display:none;
+}
+
 #backBtn{
   width:100%;
   padding:12px;
@@ -474,6 +483,8 @@ button:disabled{
   <button type="button" id="backBtn" style="margin-top:10px; background:#65a30d;">Бүртгэлрүү буцах</button>
 </div>
 
+<div id="error"></div>
+
 <div id="formFields">
 <h2>Бүүвэй брэнд - Дуудлагын бүртгэл</h2>
 <div class="hint">Жишээ: <b>88112233</b> (8 оронтой)</div>
@@ -656,6 +667,7 @@ const addOrderBtn=document.getElementById("addOrderBtn");
 const form=document.getElementById("form");
 const btn=document.getElementById("submitBtn");
 const success=document.getElementById("success");
+const errorBox=document.getElementById("error");
 const totalPaymentInput=document.getElementById("totalPayment");
 const advancePaymentInput=document.getElementById("advancePayment");
 const balancePaymentInput=document.getElementById("balancePayment");
@@ -845,11 +857,30 @@ form.onsubmit=async e=>{
   btn.disabled=true;
   btn.textContent="Илгээж байна...";
 
+  if (errorBox) {
+    errorBox.style.display="none";
+    errorBox.textContent="";
+  }
+
   const res=await fetch("/register",{method:"POST",body:new FormData(form)});
   if(res.ok){
     success.style.display="block";
     document.getElementById("formFields").style.display="none";
     form.reset();
+  } else {
+    let message = "Алдаа гарлаа";
+    try {
+      const data = await res.json();
+      if (data && data.error) message = data.error;
+    } catch (err) {
+      message = "Алдаа гарлаа";
+    }
+    if (errorBox) {
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+    } else {
+      alert(message);
+    }
   }
 
   btn.disabled=false;
