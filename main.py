@@ -261,29 +261,29 @@ async def register(
 
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-            for i in range(count):
-                is_first = i == 0
-                sheet.append_row([
-                    timestamp,
-                    phone,
-                    category,
-                    types[i] if i < len(types) else "",
-                    sizes[i] if i < len(sizes) else "",
-                    colors[i] if i < len(colors) else "",
-                    patterns[i] if i < len(patterns) else "",
-                    pattern_colors[i] if i < len(pattern_colors) else "",
-                    quantities[i] if i < len(quantities) else "1",
-                    deliveryDate,
-                    deliveryDate,  # Захиалгын хугацаа
-                    deliveryType,
-                    "",  # status
-                    totalPayment if is_first else "",
-                    advancePayment if is_first else "",
-                    balance_final if is_first else "",
-                    paid_value if is_first else "",
-                    deliveryAddress,
-                    registeredBy,
-                ])
+        for i in range(count):
+            is_first = i == 0
+            sheet.append_row([
+                timestamp,
+                phone,
+                category,
+                types[i] if i < len(types) else "",
+                sizes[i] if i < len(sizes) else "",
+                colors[i] if i < len(colors) else "",
+                patterns[i] if i < len(patterns) else "",
+                pattern_colors[i] if i < len(pattern_colors) else "",
+                quantities[i] if i < len(quantities) else "1",
+                deliveryDate,
+                deliveryDate,  # Захиалгын хугацаа
+                deliveryType,
+                "",  # status
+                totalPayment if is_first else "",
+                advancePayment if is_first else "",
+                balance_final if is_first else "",
+                paid_value if is_first else "",
+                deliveryAddress,
+                registeredBy,
+            ])
 
         # Send email notification if it's an order
         if category == "Захиалга":
