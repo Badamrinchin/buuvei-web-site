@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Form
 from typing import List
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from google.oauth2.service_account import Credentials
 import gspread
@@ -16,6 +17,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 app = FastAPI()
+
+# Static assets (logo, etc.)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Templates
 templates = Jinja2Templates(directory="templates")

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 520" role="img" aria-label="BUUVEI logo">
+  <rect width="420" height="520" fill="none"/>
+  <g fill="none" stroke="#ef4444" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M210 42c64 0 112 46 112 109c0 48-27 82-70 105"/>
+    <path d="M210 42c-64 0-112 46-112 120c0 85 53 149 130 166"/>
+    <path d="M206 138c22 26 25 57 8 80c-17 22-44 31-74 26"/>
+    <path d="M234 137c-24 27-24 60-3 86c20 25 52 31 82 23"/>
+    <path d="M164 253c42 20 77 57 89 106"/>
+    <path d="M255 357c-10-42-44-84-88-104"/>
+    <path d="M151 372c11 34 39 57 78 57c47 0 81-33 81-78c0-46-34-79-79-79"/>
+    <path d="M208 167c0 0-9 33 12 64"/>
+  </g>
+  <text x="210" y="502" text-anchor="middle" fill="#ef4444" font-size="64" font-family="Arial, Helvetica, sans-serif" letter-spacing="6">BUUVEI</text>
+</svg>

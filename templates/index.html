@@ -23,6 +23,19 @@ form{
 h2{margin-bottom:6px;color:#1f2937}
 .hint{color:#666;font-size:14px;margin-bottom:16px}
 
+.hero-brand {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.hero-logo {
+  width: 120px;
+  max-width: 45vw;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
+}
+
 .field{margin-bottom:14px}
 label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
 input,select,button,textarea{
@@ -499,6 +512,86 @@ button:disabled{
   background: #64748b;
 }
 
+#mobileDetailsModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  z-index: 350;
+  padding: 12px;
+}
+
+.mobile-details-content {
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 760px;
+  margin: 0 auto;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  border: 1px solid #dbeafe;
+}
+
+.mobile-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 12px;
+}
+
+.mobile-details-header h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.mobile-details-body {
+  padding: 10px;
+}
+
+#mobileEditModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: none;
+  z-index: 360;
+  padding: 12px;
+}
+
+.mobile-edit-content {
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 760px;
+  margin: 0 auto;
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  border: 1px solid #dbeafe;
+}
+
+.mobile-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 10px 12px;
+}
+
+.mobile-edit-header h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.mobile-edit-body {
+  padding: 10px;
+}
+
 .progress-boxes {
   display: flex;
   gap: 2px;
@@ -622,8 +715,17 @@ button:disabled{
     padding: 6px;
   }
 
+  #ordersTable th:nth-child(1),
+  #ordersTable td:nth-child(1) {
+    display: none;
+  }
+
+  .item-sub {
+    font-size: 11px;
+  }
+
   .details-grid {
-    grid-template-columns: repeat(2, minmax(100px, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .edit-grid {
@@ -657,6 +759,10 @@ button:disabled{
   }
 
   .modal-header { flex-wrap: wrap; gap:8px; }
+
+  .details-row {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -731,7 +837,6 @@ button:disabled{
           <th>Барааны мэдээлэл</th>
           <th>Тоо ширхэг</th>
           <th>Захиалгын хугацаа</th>
-          <th>Хүргэлтийн хаяг</th>
           <th>Явц</th>
           <th>Үйлдэл</th>
         </tr>
@@ -741,6 +846,26 @@ button:disabled{
     </table>
     </div>
     <button class="close-modal close-modal-bottom" id="closeOrdersBtn">Хаах</button>
+  </div>
+</div>
+
+<div id="mobileDetailsModal">
+  <div class="mobile-details-content">
+    <div class="mobile-details-header">
+      <h3>Захиалгын дэлгэрэнгүй</h3>
+      <button type="button" class="close-modal" id="closeMobileDetailsBtn">Хаах</button>
+    </div>
+    <div class="mobile-details-body" id="mobileDetailsBody"></div>
+  </div>
+</div>
+
+<div id="mobileEditModal">
+  <div class="mobile-edit-content">
+    <div class="mobile-edit-header">
+      <h3>Захиалга засах</h3>
+      <button type="button" class="close-modal" id="closeMobileEditBtn">Хаах</button>
+    </div>
+    <div class="mobile-edit-body" id="mobileEditBody"></div>
   </div>
 </div>
 
@@ -783,7 +908,10 @@ button:disabled{
 <div id="error"></div>
 
 <div id="formFields">
-<h2>Бүүвэй брэнд - Дуудлагын бүртгэл</h2>
+<div class="hero-brand">
+  <img src="/static/logo.png" alt="Buuvei logo" class="hero-logo" onerror="this.style.display='none'">
+</div>
+<h2>Дуудлагын бүртгэл</h2>
 <div class="hint">Жишээ: <b>88112233</b> (8 оронтой)</div>
 
 <div class="field">
@@ -1843,10 +1971,17 @@ document.getElementById("backBtn").onclick=()=>{
 const ordersModal = document.getElementById("ordersModal");
 const ordersBtn = document.getElementById("ordersBtn");
 const closeOrdersBtn = document.getElementById("closeOrdersBtn");
+const mobileDetailsModal = document.getElementById("mobileDetailsModal");
+const mobileDetailsBody = document.getElementById("mobileDetailsBody");
+const closeMobileDetailsBtn = document.getElementById("closeMobileDetailsBtn");
+const mobileEditModal = document.getElementById("mobileEditModal");
+const mobileEditBody = document.getElementById("mobileEditBody");
+const closeMobileEditBtn = document.getElementById("closeMobileEditBtn");
 const ordersSearch = document.getElementById("ordersSearch");
 const ordersSearchBtn = document.getElementById("ordersSearchBtn");
 
 let allOrders = [];
+let activeDetailsId = null;
 
 if (ordersBtn) {
   ordersBtn.onclick = () => {
@@ -1876,6 +2011,14 @@ window.onclick = (event) => {
     } else {
       ordersModal.style.display = "none";
     }
+  }
+
+  if (mobileDetailsModal && event.target === mobileDetailsModal) {
+    mobileDetailsModal.style.display = "none";
+  }
+
+  if (mobileEditModal && event.target === mobileEditModal) {
+    mobileEditModal.style.display = "none";
   }
 };
 
@@ -2157,13 +2300,144 @@ function getStatusInfo(status, overdue) {
 function toggleGroupDetails(groupId) {
   const row = document.getElementById(`details-${groupId}`);
   if (!row) return;
-  row.classList.toggle("hidden");
+
+  if (window.innerWidth <= 768 && mobileDetailsModal && mobileDetailsBody) {
+    const panel = row.querySelector(".details-panel");
+    if (!panel) return;
+
+    const clone = panel.cloneNode(true);
+    clone.querySelectorAll("[id]").forEach(el => el.removeAttribute("id"));
+    clone.querySelectorAll(".edit-panel").forEach(el => el.remove());
+
+    mobileDetailsBody.innerHTML = "";
+    mobileDetailsBody.appendChild(clone);
+    mobileDetailsModal.style.display = "block";
+    return;
+  }
+
+  const isSameAndOpen = activeDetailsId === groupId && !row.classList.contains("hidden");
+  document.querySelectorAll(".details-row").forEach(el => el.classList.add("hidden"));
+  document.querySelectorAll(".edit-panel").forEach(el => el.classList.add("hidden"));
+
+  if (isSameAndOpen) {
+    activeDetailsId = null;
+    return;
+  }
+
+  row.classList.remove("hidden");
+  activeDetailsId = groupId;
+}
+
+if (closeMobileDetailsBtn) {
+  closeMobileDetailsBtn.onclick = () => {
+    if (mobileDetailsModal) mobileDetailsModal.style.display = "none";
+  };
+}
+
+if (closeMobileEditBtn) {
+  closeMobileEditBtn.onclick = () => {
+    if (mobileEditModal) mobileEditModal.style.display = "none";
+  };
 }
 
 function toggleGroupEdit(groupId, show) {
   const panel = document.getElementById(`edit-panel-${groupId}`);
-  if (!panel) return;
-  panel.classList.toggle("hidden", !show);
+  const detailsRow = document.getElementById(`details-${groupId}`);
+  if (!panel || !detailsRow) return;
+
+  if (window.innerWidth <= 768 && show && mobileEditModal && mobileEditBody) {
+    const row = detailsRow.dataset.row;
+    const values = {
+      type: (document.getElementById(`edit-type-${groupId}`) || {}).value || "",
+      size: (document.getElementById(`edit-size-${groupId}`) || {}).value || "",
+      color: (document.getElementById(`edit-color-${groupId}`) || {}).value || "",
+      pattern: (document.getElementById(`edit-pattern-${groupId}`) || {}).value || "",
+      patternColor: (document.getElementById(`edit-patternColor-${groupId}`) || {}).value || "",
+      quantity: (document.getElementById(`edit-quantity-${groupId}`) || {}).value || "",
+      deliveryDate: (document.getElementById(`edit-deliveryDate-${groupId}`) || {}).value || "",
+      deliveryType: (document.getElementById(`edit-deliveryType-${groupId}`) || {}).value || "",
+      registeredBy: (document.getElementById(`edit-registeredBy-${groupId}`) || {}).value || "",
+      deliveryAddress: (document.getElementById(`edit-deliveryAddress-${groupId}`) || {}).value || "",
+    };
+
+    mobileEditBody.innerHTML = `
+      <div class="edit-grid">
+        <input id="m-edit-type" value="${escapeHtml(values.type)}" placeholder="Төрөл">
+        <input id="m-edit-size" value="${escapeHtml(values.size)}" placeholder="Хэмжээ">
+        <input id="m-edit-color" value="${escapeHtml(values.color)}" placeholder="Өнгө">
+        <input id="m-edit-pattern" value="${escapeHtml(values.pattern)}" placeholder="Хээ">
+        <input id="m-edit-patternColor" value="${escapeHtml(values.patternColor)}" placeholder="Хээний өнгө">
+        <input id="m-edit-quantity" value="${escapeHtml(values.quantity)}" placeholder="Тоо">
+        <input id="m-edit-deliveryDate" value="${escapeHtml(values.deliveryDate)}" placeholder="Огноо YYYY-MM-DD">
+        <input id="m-edit-deliveryType" value="${escapeHtml(values.deliveryType)}" placeholder="Хүргэлтийн төрөл">
+        <input id="m-edit-registeredBy" value="${escapeHtml(values.registeredBy)}" placeholder="Бүртгэсэн">
+        <textarea id="m-edit-deliveryAddress" rows="2" placeholder="Хаяг">${escapeHtml(values.deliveryAddress)}</textarea>
+      </div>
+      <div class="edit-actions">
+        <button type="button" class="tiny-btn save-btn" id="m-edit-save">Хадгалах</button>
+        <button type="button" class="tiny-btn cancel-btn" id="m-edit-cancel">Болих</button>
+      </div>
+    `;
+
+    const saveBtn = document.getElementById("m-edit-save");
+    const cancelBtn = document.getElementById("m-edit-cancel");
+    if (saveBtn) {
+      saveBtn.onclick = async () => {
+        const get = (id) => (document.getElementById(id) || {}).value || "";
+        const formData = new FormData();
+        formData.append("type", get("m-edit-type"));
+        formData.append("size", get("m-edit-size"));
+        formData.append("color", get("m-edit-color"));
+        formData.append("pattern", get("m-edit-pattern"));
+        formData.append("patternColor", get("m-edit-patternColor"));
+        formData.append("quantity", get("m-edit-quantity"));
+        formData.append("deliveryDate", get("m-edit-deliveryDate"));
+        formData.append("deliveryType", get("m-edit-deliveryType"));
+        formData.append("deliveryAddress", get("m-edit-deliveryAddress"));
+        formData.append("registeredBy", get("m-edit-registeredBy"));
+
+        try {
+          const res = await fetch(`/orders/${row}/edit`, { method: "POST", body: formData });
+          if (!res.ok) {
+            alert("Засвар хадгалах үед алдаа гарлаа");
+            return;
+          }
+          mobileEditModal.style.display = "none";
+          await loadOrders();
+        } catch (error) {
+          console.error("Mobile edit save error:", error);
+          alert("Засвар хадгалах үед алдаа гарлаа");
+        }
+      };
+    }
+    if (cancelBtn) {
+      cancelBtn.onclick = () => {
+        mobileEditModal.style.display = "none";
+      };
+    }
+
+    mobileEditModal.style.display = "block";
+    return;
+  }
+
+  if (show) {
+    document.querySelectorAll(".details-row").forEach(el => {
+      el.classList.toggle("hidden", el.id !== `details-${groupId}`);
+    });
+    document.querySelectorAll(".edit-panel").forEach(el => {
+      if (el.id !== `edit-panel-${groupId}`) el.classList.add("hidden");
+    });
+
+    detailsRow.classList.remove("hidden");
+    panel.classList.remove("hidden");
+    activeDetailsId = groupId;
+
+    // Jump directly to edit form area on desktop.
+    panel.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  panel.classList.add("hidden");
 }
 
 async function saveGroupEdit(groupId, row) {
@@ -2290,7 +2564,6 @@ function renderGroupedOrders(groups) {
       if (idx === 0) {
         rowHtml += `
           <td rowspan="${items.length}">${escapeHtml(groupDelDate)}</td>
-          <td rowspan="${items.length}">${escapeHtml(firstItem.deliveryAddress || "-")}</td>
           <td rowspan="${items.length}">${statusHtml}</td>
           <td rowspan="${items.length}">
             <div class="order-actions">
@@ -2313,7 +2586,7 @@ function renderGroupedOrders(groups) {
     detailsRow.dataset.advance = advanceText;
     detailsRow.dataset.balance = balanceText;
     detailsRow.innerHTML = `
-      <td colspan="8">
+      <td colspan="7">
         <div class="details-panel">
           <div class="details-grid">
             <div class="details-card"><span class="label">Нийт төлбөр</span><span class="value">${escapeHtml(totalText || "-")}</span></div>
