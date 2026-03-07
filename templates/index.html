@@ -744,6 +744,35 @@ button:disabled{
   </div>
 </div>
 
+<script>
+// Fallback bindings so the orders modal can open even if later scripts fail.
+(function () {
+  const modal = document.getElementById("ordersModal");
+  const openBtn = document.getElementById("ordersBtn");
+  const closeBtn = document.getElementById("closeOrdersBtn");
+
+  window.__openOrdersModal = function () {
+    if (!modal) return;
+    modal.style.display = "block";
+    if (typeof window.loadOrders === "function") {
+      window.loadOrders();
+    }
+  };
+
+  window.__closeOrdersModal = function () {
+    if (!modal) return;
+    modal.style.display = "none";
+  };
+
+  if (openBtn) {
+    openBtn.addEventListener("click", window.__openOrdersModal);
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener("click", window.__closeOrdersModal);
+  }
+})();
+</script>
+
 <form id="form">
 
 <div id="success">
@@ -1819,18 +1848,34 @@ const ordersSearchBtn = document.getElementById("ordersSearchBtn");
 
 let allOrders = [];
 
-ordersBtn.onclick = () => {
-  ordersModal.style.display = "block";
-  loadOrders();
-};
+if (ordersBtn) {
+  ordersBtn.onclick = () => {
+    if (typeof window.__openOrdersModal === "function") {
+      window.__openOrdersModal();
+      return;
+    }
+    if (ordersModal) ordersModal.style.display = "block";
+    loadOrders();
+  };
+}
 
-closeOrdersBtn.onclick = () => {
-  ordersModal.style.display = "none";
-};
+if (closeOrdersBtn) {
+  closeOrdersBtn.onclick = () => {
+    if (typeof window.__closeOrdersModal === "function") {
+      window.__closeOrdersModal();
+      return;
+    }
+    if (ordersModal) ordersModal.style.display = "none";
+  };
+}
 
 window.onclick = (event) => {
-  if (event.target === ordersModal) {
-    ordersModal.style.display = "none";
+  if (ordersModal && event.target === ordersModal) {
+    if (typeof window.__closeOrdersModal === "function") {
+      window.__closeOrdersModal();
+    } else {
+      ordersModal.style.display = "none";
+    }
   }
 };
 
