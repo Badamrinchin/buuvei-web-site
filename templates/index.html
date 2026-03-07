@@ -44,18 +44,31 @@ input:focus,select:focus{
 
 .hidden{display:none}
 
+.order-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.order-group.is-extra {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.order-group-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
 .order-group + .order-group {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #e5e7eb;
+  margin-top: 14px;
 }
 
 .order-group::before {
-  content: "";
-  display: block;
-  height: 1px;
-  background: #e5e7eb;
-  margin: 10px 0 14px;
+  display: none;
 }
 
 .order-group:first-child::before {
@@ -369,6 +382,32 @@ button:disabled{
   padding: 20px;
 }
 
+.secondary-btn {
+  background: #0f766e;
+}
+
+.secondary-btn:hover {
+  background: #0d665f;
+}
+
+.text-import-panel {
+  border: 1px solid #d1fae5;
+  background: #ecfeff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.text-import-panel .hint {
+  font-size: 13px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.text-import-actions {
+  display: flex;
+  gap: 8px;
+}
+
 /* Responsive adjustments for mobile */
 @media (max-width: 600px) {
   body {
@@ -544,6 +583,19 @@ button:disabled{
 
 <div id="orderFields" class="hidden">
 
+  <div class="field">
+    <button type="button" id="openTextImportBtn" class="secondary-btn">Текст</button>
+  </div>
+
+  <div id="textImportPanel" class="field text-import-panel hidden">
+    <label>Текстээр бөглөх</label>
+    <textarea id="textImportInput" rows="8" placeholder="Утас: 88112233&#10;Ангилал: Захиалга&#10;Төрөл: Нэхий олбог|Суудлын бүрээс&#10;Хэмжээ: 45*45см|90*60см&#10;Өнгө: Цагаан|Шар&#10;Хээ: Хонь|Хээгүй&#10;Хээний өнгө: Ногоон|&#10;Тоо: 2|1&#10;Нэгж үнэ: 180000|250000&#10;Хүлээлгэн өгөх огноо: 2026-03-10&#10;Бүртгэсэн: Ренчин&#10;Хүргэлтийн төрөл: Хүргэлтээр авах&#10;Хаяг: БЗД, 1-р хороо&#10;Урьдчилгаа: 100000&#10;Төлөгдсөн: Үгүй"></textarea>
+    <div class="hint">Олон барааг <b>|</b> тэмдэгээр салгаж бичнэ. Түлхүүрүүд: Утас, Ангилал, Төрөл, Хэмжээ, Өнгө, Хээ, Хээний өнгө, Тоо, Нэгж үнэ, Хүлээлгэн өгөх огноо, Бүртгэсэн, Хүргэлтийн төрөл, Хаяг, Урьдчилгаа, Төлөгдсөн.</div>
+    <div class="text-import-actions">
+      <button type="button" id="applyTextImportBtn">Автоматаар бөглөх</button>
+    </div>
+  </div>
+
   <div id="orderGroups">
     <div class="order-group">
       <div class="field">
@@ -589,6 +641,11 @@ button:disabled{
           <option value="">Сонгох</option>
           <option>Хонь</option>
           <option>Хүннү буга</option>
+          <option>Марал буга</option>
+          <option>Өлзий хээ</option>
+          <option>Морь</option>
+          <option>Янгир</option>
+          <option>Зүрх</option>
           <option>Хээгүй</option>
           <option value="Бусад">Бусад</option>
         </select>
@@ -716,6 +773,10 @@ const paidNo=document.getElementById("paidNo");
 const deliveryTypeSelect=orderFields ? orderFields.querySelector('select[name="deliveryType"]') : null;
 const deliveryAddressField=document.getElementById("deliveryAddressField");
 const deliveryAddressInput=document.getElementById("deliveryAddress");
+const openTextImportBtn=document.getElementById("openTextImportBtn");
+const textImportPanel=document.getElementById("textImportPanel");
+const textImportInput=document.getElementById("textImportInput");
+const applyTextImportBtn=document.getElementById("applyTextImportBtn");
 
 category.onchange = () => {
   const show = category.value === "Захиалга";
@@ -770,6 +831,7 @@ category.onchange = () => {
       if (el.tagName === "SELECT") el.value = "";
       if ((el.tagName === "INPUT" || el.tagName === "TEXTAREA") && el.type !== "radio" && el.type !== "checkbox") el.value = "";
     });
+    refreshOrderGroupUI();
   }
 };
 
@@ -843,6 +905,29 @@ function bindRemoveButton(group) {
   removeBtn.addEventListener("click", () => {
     if (!orderGroups || orderGroups.children.length <= 1) return;
     orderGroups.removeChild(group);
+    refreshOrderGroupUI();
+    updateTotalPayment();
+  });
+}
+
+function refreshOrderGroupUI() {
+  if (!orderGroups) return;
+  const groups = orderGroups.querySelectorAll(".order-group");
+  groups.forEach((group, index) => {
+    let titleEl = group.querySelector(".order-group-title");
+    if (!titleEl) {
+      titleEl = document.createElement("div");
+      titleEl.className = "order-group-title";
+      group.insertBefore(titleEl, group.firstChild);
+    }
+
+    titleEl.textContent = index === 0 ? "Үндсэн захиалга" : `Нэмэлт захиалга ${index}`;
+    group.classList.toggle("is-extra", index > 0);
+
+    const removeBtn = group.querySelector(".remove-order-btn");
+    if (removeBtn) {
+      removeBtn.classList.toggle("hidden", index === 0);
+    }
   });
 }
 
@@ -851,6 +936,7 @@ orderFields.querySelectorAll('select[name="pattern"]').forEach(bindPatternSelect
 orderFields.querySelectorAll(".order-group").forEach(group => updatePatternColorState(group));
 orderFields.querySelectorAll(".order-group").forEach(bindRemoveButton);
 orderFields.querySelectorAll(".order-group").forEach(bindPriceInputs);
+refreshOrderGroupUI();
 
 if (addOrderBtn && orderGroups) {
   addOrderBtn.addEventListener("click", () => {
@@ -885,12 +971,592 @@ if (addOrderBtn && orderGroups) {
     bindPriceInputs(clone);
     bindRemoveButton(clone);
     orderGroups.appendChild(clone);
+    refreshOrderGroupUI();
     updateTotalPayment();
   });
 }
 
 if (deliveryTypeSelect) {
   deliveryTypeSelect.addEventListener("change", updateDeliveryAddressState);
+}
+
+function normalizeDateForInput(value) {
+  if (!value) return "";
+  const v = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  const dotMatch = v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (dotMatch) {
+    const dd = dotMatch[1].padStart(2, "0");
+    const mm = dotMatch[2].padStart(2, "0");
+    return `${dotMatch[3]}-${mm}-${dd}`;
+  }
+  const slashMatch = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) {
+    const dd = slashMatch[1].padStart(2, "0");
+    const mm = slashMatch[2].padStart(2, "0");
+    return `${slashMatch[3]}-${mm}-${dd}`;
+  }
+  return v;
+}
+
+function splitPipeValues(value) {
+  if (!value) return [];
+  return value.split(/\||,/).map(v => v.trim());
+}
+
+function parseAmountWithUnits(rawValue) {
+  if (!rawValue) return "";
+  const normalized = rawValue.toLowerCase().replace(/,/g, "").replace(/\s+/g, "").trim();
+  const match = normalized.match(/(\d+(?:\.\d+)?)(мянга|сая)?/);
+  if (!match) return "";
+  const base = Number(match[1]);
+  if (!Number.isFinite(base)) return "";
+
+  let total = base;
+  if (match[2] === "мянга") total = base * 1000;
+  if (match[2] === "сая") total = base * 1000000;
+
+  return Math.round(total).toString();
+}
+
+function parseNaturalOrderText(rawText) {
+  const result = {};
+  if (!rawText) return result;
+
+  const toTitleCase = (value) => value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  const text = rawText.toLowerCase();
+  const colorWords = ["цагаан", "шар", "ногоон", "бор", "саарал"];
+  const colorDisplay = {
+    "цагаан": "Цагаан",
+    "шар": "Шар",
+    "ногоон": "Ногоон",
+    "бор": "Бор",
+    "саарал": "Саарал"
+  };
+
+  const findAllColorHits = () => {
+    const hits = [];
+    colorWords.forEach(color => {
+      let start = 0;
+      while (start < text.length) {
+        const idx = text.indexOf(color, start);
+        if (idx === -1) break;
+        hits.push({ color, index: idx });
+        start = idx + color.length;
+      }
+    });
+    hits.sort((a, b) => a.index - b.index);
+    return hits;
+  };
+
+  // Type detect by keywords.
+  if (text.includes("суудлын бүрээс")) {
+    result.type = "Суудлын бүрээс";
+  } else if (text.includes("нэхий олбог") || text.includes("олбог")) {
+    result.type = "Нэхий олбог";
+  }
+
+  // Size detect: e.g. 180*140см, 90x60 см
+  // Also supports phrase formats:
+  // - "90-ийг харьцах нь 60см"
+  // - "90-ыг харьцдаг нь 60см"
+  // - "90 ийн харьцах нь 60"
+  const ratioPatterns = [
+    /(\d{2,3})\s*(?:-|\s)?(?:ийг|ыг)\s*харьц(?:ах|даг)\s*нь\s*(\d{2,3})\s*см?/i,
+    /(\d{2,3})\s*(?:-|\s)?(?:ийн|ын)\s*харьц(?:ах|даг)\s*нь\s*(\d{2,3})\s*см?/i,
+    /(\d{2,3})\s*см?\s*(?:-|\s)?(?:ийг|ыг)?\s*харьц(?:ах|даг)\s*нь\s*(\d{2,3})\s*см?/i,
+    /(\d{2,3})\s*(?:-|\s)?(?:ийг|ыг)?\s*харьц(?:ах|даг)\s*нь\s*(\d{2,3})/i,
+  ];
+  let ratioSizeMatch = null;
+  for (const pattern of ratioPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      ratioSizeMatch = match;
+      break;
+    }
+  }
+  const sizeMatch = text.match(/(\d{2,3})\s*[*xх]\s*(\d{2,3})\s*см?/i);
+  if (ratioSizeMatch) {
+    result.size = `${ratioSizeMatch[1]}*${ratioSizeMatch[2]}см`;
+  } else if (sizeMatch) {
+    result.size = `${sizeMatch[1]}*${sizeMatch[2]}см`;
+  } else {
+    // Shorthand size support:
+    // 45 -> 45*45см, 90 -> 90*60см, 180 -> 180*60см
+    const sizeBySingleValue = {
+      "45": "45*45см",
+      "90": "90*60см",
+      "180": "180*60см"
+    };
+
+    const shortSizeMatch = text.match(/(?:^|\s|,)(45|90|180)(?:\s*см|\s*-\s*ыг)?(?=\s|[.,!?:;]|$)/i)
+      || text.match(/хэмжээ\s*[:=：-]?\s*(45|90|180)\b/i);
+
+    if (shortSizeMatch) {
+      const sizeValue = shortSizeMatch[1];
+      if (sizeBySingleValue[sizeValue]) {
+        result.size = sizeBySingleValue[sizeValue];
+      }
+    }
+  }
+
+  // Detect product color from "... өнгөтэй" phrase first.
+  const productColorMatch = text.match(/(цагаан|шар|ногоон|бор|саарал)\s*өнгө(?:тэй|ний|н)?/);
+  if (productColorMatch && colorDisplay[productColorMatch[1]]) {
+    result.color = colorDisplay[productColorMatch[1]];
+  }
+
+  // Fallback product color: first color mention in text.
+  const foundColors = findAllColorHits();
+  if (!result.color && foundColors.length > 0) {
+    result.color = colorDisplay[foundColors[0].color];
+  }
+
+  // Pattern detect.
+  if (text.includes("хээгүй")) {
+    result.pattern = "Хээгүй";
+  } else if (text.includes("марал буга")) {
+    result.pattern = "Марал буга";
+  } else if (text.includes("өлзий хээ")) {
+    result.pattern = "Өлзий хээ";
+  } else if (text.includes("морь")) {
+    result.pattern = "Морь";
+  } else if (text.includes("янгир")) {
+    result.pattern = "Янгир";
+  } else if (text.includes("зүрх")) {
+    result.pattern = "Зүрх";
+  } else if (text.includes("хүннү буга")) {
+    result.pattern = "Хүннү буга";
+  } else if (text.includes("бугатай") || text.includes(" буга")) {
+    // "Буга" option is not in the select, so it will be stored via "Бусад".
+    result.pattern = "Буга";
+  } else if (text.includes("хонь")) {
+    result.pattern = "Хонь";
+  } else if (text.includes("булга")) {
+    // Not in predefined list, goes to "Бусад" via existing setSelectValue logic.
+    result.pattern = "Булга";
+  }
+
+  const patternColorNearMatch = text.match(/(цагаан|шар|ногоон|бор|саарал)\s*(?:(?:хүннү\s*)?буга(?:тай)?|булга(?:тай)?|хээ)/);
+  if (patternColorNearMatch && colorDisplay[patternColorNearMatch[1]]) {
+    result.patternColor = colorDisplay[patternColorNearMatch[1]];
+  } else if (foundColors.length > 1) {
+    // If product color is known, use next different color occurrence as pattern color.
+    const productColorLower = (result.color || "").toLowerCase();
+    const candidate = foundColors.find(hit => hit.color !== productColorLower) || foundColors[1];
+    result.patternColor = colorDisplay[candidate.color];
+  }
+
+  // Generic pattern phrase support, e.g. "цагаан нохойтой" -> patternColor=Цагаан, pattern=Нохой.
+  const genericPatternPhrase = text.match(/(цагаан|шар|ногоон|бор|саарал)\s+([а-яөүңё]+(?:\s+[а-яөүңё]+)?)\s*(тай|тэй|той|төй)(?=\s|[.,!?:;]|$)/i);
+  if (genericPatternPhrase) {
+    const pColor = genericPatternPhrase[1].toLowerCase();
+    const rawPattern = genericPatternPhrase[2].trim().toLowerCase();
+    if (!result.patternColor && colorDisplay[pColor]) {
+      result.patternColor = colorDisplay[pColor];
+    }
+
+    // Ignore non-pattern fillers and obvious color words.
+    const invalidWords = ["өнгө", "өнгөтэй", "өнгийн", "хээ", "хээтэй"];
+    const patternLooksValid = rawPattern && !invalidWords.includes(rawPattern) && !colorWords.includes(rawPattern);
+    if (patternLooksValid && !result.pattern) {
+      result.pattern = toTitleCase(rawPattern);
+    }
+  }
+
+  const qtyMatch = text.match(/(\d+)\s*(?:ш|ширхэг|ширхэгтэй)(?=\s|[.,!?:;]|$)/i)
+    || text.match(/тоо\s*[:=：-]?\s*(\d+)/i);
+  if (qtyMatch) {
+    result.quantity = qtyMatch[1];
+  }
+
+  const daysMatch = text.match(/(\d+)\s*хоног(?:ийн)?\s*дараа/);
+  if (daysMatch) {
+    const days = parseInt(daysMatch[1], 10);
+    if (Number.isFinite(days)) {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      result.deliveryDate = date.toISOString().slice(0, 10);
+    }
+  } else if (text.includes("маргааш")) {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    result.deliveryDate = date.toISOString().slice(0, 10);
+  }
+
+  const advanceMatch = text.match(/урьдчилгаа(?:\s*төлбөр)?[^\d]*(\d+(?:[\s,]\d+)*\s*(?:мянга|сая)?)/);
+  if (advanceMatch) {
+    const amount = parseAmountWithUnits(advanceMatch[1]);
+    if (amount) result.advancePayment = amount;
+  }
+
+  const addressMatch = rawText.match(/хаяг\s*[:=：]\s*([^\n]+)/i);
+  if (addressMatch) {
+    result.deliveryAddress = addressMatch[1].trim().replace(/[.\s]+$/, "");
+  }
+
+  // If text mentions delivery (e.g. "хүргэнэ", "хүргүүлнэ", "хүргэж"), auto-select delivery type.
+  if (text.includes("хүрг")) {
+    result.deliveryType = "Хүргэлтээр авах";
+  }
+
+  return result;
+}
+
+function parseAdditionalOrderSections(rawText) {
+  const merged = {};
+  if (!rawText) return merged;
+
+  const sections = rawText
+    .split(/нэмэлт\s*захиалга\s*[:=：]?/i)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (sections.length < 2) return merged;
+
+  const orderItems = sections.map(section => parseNaturalOrderText(section));
+
+  // For additional orders, if type is not specified, default to "Нэхий олбог".
+  orderItems.forEach((item, index) => {
+    if (index > 0 && !(item.type || "").trim()) {
+      item.type = "Нэхий олбог";
+    }
+  });
+
+  const orderKeys = ["type", "size", "color", "pattern", "patternColor", "quantity", "unitPrice"];
+
+  orderKeys.forEach(key => {
+    const hasAny = orderItems.some(item => (item[key] || "").trim() !== "");
+    if (!hasAny) return;
+    merged[key] = orderItems.map(item => item[key] || "").join("|");
+  });
+
+  return merged;
+}
+
+function parseImportText(rawText) {
+  const result = {};
+  if (!rawText) return result;
+
+  const normalizeKey = (value) => value
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const keyMap = {
+    "утас": "phone",
+    "ангилал": "category",
+    "төрөл": "type",
+    "хэмжээ": "size",
+    "өнгө": "color",
+    "хээ": "pattern",
+    "хээний өнгө": "patternColor",
+    "тоо": "quantity",
+    "тоо ширхэг": "quantity",
+    "нэгж үнэ": "unitPrice",
+    "хүлээлгэн өгөх огноо": "deliveryDate",
+    "бүртгэсэн": "registeredBy",
+    "хүргэлтийн төрөл": "deliveryType",
+    "хаяг": "deliveryAddress",
+    "урьдчилгаа": "advancePayment",
+    "төлөгдсөн": "paid",
+    "бүтэн төлбөр төлөгдсөн эсэх": "paid",
+    "автоматаар төлөгдөх": "paid"
+  };
+
+  const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+  lines.forEach(line => {
+    const clean = line.trim();
+    if (!clean) return;
+    let matched = false;
+
+    // 1) Standard separators: :, ：, =
+    const kvMatch = clean.match(/^([^:=：]+)\s*[:=：]\s*(.+)$/);
+    if (kvMatch) {
+      const rawKey = normalizeKey(kvMatch[1]);
+      const rawValue = kvMatch[2].trim();
+      const mappedKey = keyMap[rawKey];
+      if (mappedKey) {
+        result[mappedKey] = rawValue;
+        matched = true;
+      }
+    }
+
+    // 2) Dash separator with spaces: key - value
+    if (!matched) {
+      const dashMatch = clean.match(/^(.+?)\s[-]\s(.+)$/);
+      if (dashMatch) {
+        const rawKey = normalizeKey(dashMatch[1]);
+        const rawValue = dashMatch[2].trim();
+        const mappedKey = keyMap[rawKey];
+        if (mappedKey) {
+          result[mappedKey] = rawValue;
+          matched = true;
+        }
+      }
+    }
+
+    // 3) Space-only format: key value (e.g. "Утас 88112233")
+    if (!matched) {
+      const normalizedLine = normalizeKey(clean);
+      const possibleKeys = Object.keys(keyMap).sort((a, b) => b.length - a.length);
+      const keyFound = possibleKeys.find(k => normalizedLine.startsWith(`${k} `));
+      if (keyFound) {
+        const rawValue = clean.slice(keyFound.length).trim();
+        if (rawValue) {
+          result[keyMap[keyFound]] = rawValue;
+          matched = true;
+        }
+      }
+    }
+  });
+
+  // 4) Fallback: detect natural sentence format.
+  if (Object.keys(result).length === 0) {
+    Object.assign(result, parseNaturalOrderText(rawText));
+  }
+
+  // 4.1) Multi-order support: "... нэмэлт захиалга: ..."
+  const additionalSections = parseAdditionalOrderSections(rawText);
+  if (Object.keys(additionalSections).length > 0) {
+    Object.assign(result, additionalSections);
+  }
+
+  // 5) Fallback: if still empty and multiple lines exist, try line-by-line order.
+  if (Object.keys(result).length === 0 && lines.length > 1) {
+    const orderMap = [
+      "phone",
+      "type",
+      "size",
+      "color",
+      "pattern",
+      "patternColor",
+      "quantity",
+      "unitPrice",
+      "deliveryDate",
+      "registeredBy",
+      "deliveryType",
+      "deliveryAddress",
+      "advancePayment",
+      "paid"
+    ];
+
+    lines.forEach((line, index) => {
+      if (index < orderMap.length) {
+        result[orderMap[index]] = line;
+      }
+    });
+  }
+
+  // 6) Fallback phone detect from full text.
+  if (!result.phone) {
+    const phoneMatch = rawText.match(/\b\d{8}\b/);
+    if (phoneMatch) result.phone = phoneMatch[0];
+  }
+
+  // Inline address support for sentences containing "... Хаяг: ..."
+  if (!result.deliveryAddress) {
+    const inlineAddress = rawText.match(/хаяг\s*[:=：]\s*([^\n]+)/i);
+    if (inlineAddress) {
+      result.deliveryAddress = inlineAddress[1].trim().replace(/[.\s]+$/, "");
+    }
+  }
+
+  if (!result.category) {
+    result.category = "Захиалга";
+  }
+
+  return result;
+}
+
+function ensureOrderGroupCount(targetCount) {
+  if (!orderGroups) return;
+  const safeTarget = Math.max(1, targetCount);
+
+  while (orderGroups.children.length < safeTarget && addOrderBtn) {
+    addOrderBtn.click();
+  }
+
+  while (orderGroups.children.length > safeTarget) {
+    orderGroups.removeChild(orderGroups.lastElementChild);
+  }
+}
+
+function setSelectValue(group, name, value) {
+  const select = group.querySelector(`select[name="${name}"]`);
+  if (!select) return;
+  let trimmed = (value || "").trim();
+
+  // Canonical mappings for common spoken inputs.
+  if (name === "type" && trimmed.toLowerCase().includes("олбог")) {
+    trimmed = "Нэхий олбог";
+  }
+
+  if (!trimmed) {
+    select.value = "";
+    updateOtherInput(select, true);
+    return;
+  }
+
+  const hasOption = Array.from(select.options).some(opt => opt.value === trimmed);
+  if (hasOption) {
+    select.value = trimmed;
+  } else {
+    select.value = "Бусад";
+    const other = group.querySelector(`[name="${name}Other"]`);
+    if (other) other.value = trimmed;
+  }
+  updateOtherInput(select, true);
+  if (name === "pattern") updatePatternColorState(group);
+}
+
+function fillOrderGroupsFromText(parsed) {
+  const types = splitPipeValues(parsed.type);
+  const sizes = splitPipeValues(parsed.size);
+  const colors = splitPipeValues(parsed.color);
+  const patterns = splitPipeValues(parsed.pattern);
+  const patternColors = splitPipeValues(parsed.patternColor);
+  const quantities = splitPipeValues(parsed.quantity);
+  const unitPrices = splitPipeValues(parsed.unitPrice);
+
+  const groupCount = Math.max(
+    1,
+    types.length,
+    sizes.length,
+    colors.length,
+    patterns.length,
+    patternColors.length,
+    quantities.length,
+    unitPrices.length
+  );
+
+  ensureOrderGroupCount(groupCount);
+
+  const groups = orderGroups.querySelectorAll(".order-group");
+  groups.forEach((group, index) => {
+    setSelectValue(group, "type", types[index] || "");
+    setSelectValue(group, "size", sizes[index] || "");
+    setSelectValue(group, "color", colors[index] || "");
+    setSelectValue(group, "pattern", patterns[index] || "");
+    setSelectValue(group, "patternColor", patternColors[index] || "");
+
+    const qtyInput = group.querySelector('input[name="quantity"]');
+    if (qtyInput) {
+      qtyInput.value = (quantities[index] || "0").replace(/[^0-9]/g, "") || "0";
+    }
+
+    const unitInput = group.querySelector(".unit-price-input");
+    if (unitInput) {
+      const numeric = parseMoney(unitPrices[index] || "");
+      unitInput.value = formatMoney(numeric);
+    }
+
+    updateLineTotal(group);
+  });
+
+  updateTotalPayment();
+}
+
+function applyTextImport() {
+  if (!textImportInput) return;
+  const parsed = parseImportText(textImportInput.value);
+  const meaningfulKeys = Object.keys(parsed).filter(k => k !== "category");
+
+  if (errorBox) {
+    errorBox.style.display = "none";
+    errorBox.textContent = "";
+    errorBox.style.background = "#fee2e2";
+    errorBox.style.color = "#991b1b";
+  }
+
+  if (meaningfulKeys.length === 0) {
+    if (errorBox) {
+      errorBox.textContent = "Текстийн формат танигдсангүй. Жишээ: Төрөл: Нэхий олбог";
+      errorBox.style.background = "#fee2e2";
+      errorBox.style.color = "#991b1b";
+      errorBox.style.display = "block";
+    }
+    return;
+  }
+
+  if (parsed.phone) {
+    const phoneInput = form.querySelector('input[name="phone"]');
+    if (phoneInput) phoneInput.value = parsed.phone.replace(/\D/g, "").slice(0, 8);
+  }
+
+  const resolvedCategory = parsed.category || "Захиалга";
+  category.value = resolvedCategory;
+  category.onchange();
+
+  if (parsed.deliveryDate) {
+    const deliveryDateInput = orderFields.querySelector('input[name="deliveryDate"]');
+    if (deliveryDateInput) deliveryDateInput.value = normalizeDateForInput(parsed.deliveryDate);
+  }
+
+  if (parsed.registeredBy) {
+    const registeredBySelect = orderFields.querySelector('select[name="registeredBy"]');
+    if (registeredBySelect) registeredBySelect.value = parsed.registeredBy;
+  }
+
+  if (parsed.deliveryType) {
+    const deliveryType = orderFields.querySelector('select[name="deliveryType"]');
+    if (deliveryType) {
+      deliveryType.value = parsed.deliveryType;
+      updateDeliveryAddressState();
+    }
+  }
+
+  // If address exists but delivery type is omitted, assume delivery.
+  if (parsed.deliveryAddress && !parsed.deliveryType) {
+    const deliveryType = orderFields.querySelector('select[name="deliveryType"]');
+    if (deliveryType) {
+      deliveryType.value = "Хүргэлтээр авах";
+      updateDeliveryAddressState();
+    }
+  }
+
+  if (parsed.deliveryAddress && deliveryAddressInput) {
+    deliveryAddressInput.value = parsed.deliveryAddress;
+  }
+
+  fillOrderGroupsFromText(parsed);
+
+  if (parsed.advancePayment && advancePaymentInput) {
+    const advanceNumber = parseMoney(parsed.advancePayment);
+    advancePaymentInput.value = formatMoney(advanceNumber);
+  }
+
+  if (parsed.paid) {
+    const paidNormalized = parsed.paid.trim().toLowerCase();
+    const isPaid = ["тийм", "true", "1", "yes"].includes(paidNormalized);
+    if (paidYes) paidYes.checked = isPaid;
+    if (paidNo) paidNo.checked = !isPaid;
+  }
+
+  updateBalanceForForm();
+
+  if (errorBox) {
+    errorBox.textContent = "Текстээс талбарууд амжилттай бөглөгдлөө.";
+    errorBox.style.display = "block";
+    errorBox.style.background = "#dcfce7";
+    errorBox.style.color = "#166534";
+  }
+}
+
+if (openTextImportBtn && textImportPanel) {
+  openTextImportBtn.addEventListener("click", () => {
+    textImportPanel.classList.toggle("hidden");
+  });
+}
+
+if (applyTextImportBtn) {
+  applyTextImportBtn.addEventListener("click", applyTextImport);
 }
 
 form.onsubmit=async e=>{
@@ -901,6 +1567,8 @@ form.onsubmit=async e=>{
   if (errorBox) {
     errorBox.style.display="none";
     errorBox.textContent="";
+    errorBox.style.background = "#fee2e2";
+    errorBox.style.color = "#991b1b";
   }
 
   try {
@@ -1094,9 +1762,13 @@ function updateBalanceForForm() {
   const total = parseMoney(totalPaymentInput.value);
   const advance = parseMoney(advancePaymentInput.value);
 
-  if (total !== null && advance !== null && advance >= total) {
-    if (paidYes) paidYes.checked = true;
-    if (paidNo) paidNo.checked = false;
+  // Auto-select payment status:
+  // - If advance >= total, select "Тийм"
+  // - Otherwise (when total exists), select "Үгүй"
+  if (total !== null && total > 0) {
+    const isFullyPaid = advance !== null && advance >= total;
+    if (paidYes) paidYes.checked = isFullyPaid;
+    if (paidNo) paidNo.checked = !isFullyPaid;
   }
 
   const isPaid = paidYes && paidYes.checked;
