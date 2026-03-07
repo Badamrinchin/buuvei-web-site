@@ -262,31 +262,50 @@ button:disabled{
   width: 100%;
 }
 
+.table-wrapper {
+  max-height: 560px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.recent-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #475569;
+}
+
 #ordersTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 #ordersTable thead {
-  background: #f5f5f5;
+  background: linear-gradient(90deg, #eef2ff, #ecfeff);
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
 #ordersTable th,
 #ordersTable td {
-  border: 1px solid #ddd;
-  padding: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
   text-align: left;
   font-size: 13px;
+  vertical-align: top;
 }
 
 #ordersTable th {
-  font-weight: bold;
-  color: #333;
+  font-weight: 700;
+  color: #334155;
 }
 
 #ordersTable tbody tr {
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 #ordersTable tbody tr.group-end td {
@@ -311,6 +330,173 @@ button:disabled{
 
 #ordersTable tbody tr.status-overdue {
   color: #b91c1c;
+}
+
+.item-cell {
+  line-height: 1.45;
+}
+
+.item-main {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.item-sub {
+  font-size: 12px;
+  color: #475569;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.status-pill.inprogress {
+  background: #fff7ed;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.status-pill.ready {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.status-pill.received {
+  background: #ecfdf5;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-pill.overdue {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.due-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.due-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.due-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.order-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tiny-btn {
+  width: auto;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.tiny-btn.details-btn {
+  background: #0ea5e9;
+}
+
+.tiny-btn.edit-btn {
+  background: #0891b2;
+}
+
+.details-row {
+  background: #f8fafc;
+}
+
+.details-panel {
+  padding: 10px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.details-card {
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.details-card .label {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 3px;
+}
+
+.details-card .value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.address-text {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  font-size: 12px;
+  color: #334155;
+}
+
+.edit-panel {
+  margin-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 10px;
+}
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.edit-grid input,
+.edit-grid select,
+.edit-grid textarea {
+  font-size: 13px;
+  padding: 8px;
+}
+
+.edit-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.tiny-btn.save-btn {
+  background: #16a34a;
+}
+
+.tiny-btn.cancel-btn {
+  background: #64748b;
 }
 
 .progress-boxes {
@@ -436,6 +622,14 @@ button:disabled{
     padding: 6px;
   }
 
+  .details-grid {
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+  }
+
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+
   .progress-box {
     width: 12px;
     height: 12px;
@@ -495,6 +689,10 @@ button:disabled{
     padding: 6px 4px;
   }
 
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
   .progress-box {
     width: 10px;
     height: 10px;
@@ -522,6 +720,7 @@ button:disabled{
       <input type="text" id="ordersSearch" placeholder="Хайх...">
       <button type="button" id="ordersSearchBtn">Хайх</button>
     </div>
+    <div class="recent-hint">Сүүлийн 5 захиалга харагдана. Хуучин захиалгуудыг дээш скролдоод харна.</div>
     <div id="ordersContainer" class="loading">Ачаалж байна...</div>
     <div class="table-wrapper">
     <table id="ordersTable" style="display:none;">
@@ -529,19 +728,12 @@ button:disabled{
         <tr>
           <th>№</th>
           <th>Утас</th>
-          <th>Төрөл</th>
-          <th>Хэмжээ</th>
-          <th>Өнгө</th>
-          <th>Хээ</th>
-          <th>Хээний өнгө</th>
+          <th>Барааны мэдээлэл</th>
           <th>Тоо ширхэг</th>
           <th>Захиалгын хугацаа</th>
+          <th>Хүргэлтийн хаяг</th>
           <th>Явц</th>
-          <th>Нийт төлбөр</th>
-          <th>Урьдчилгаа</th>
-          <th>Үлдэгдэл төлбөр</th>
-          <th>Бүтэн төлбөр төлөгдсөн эсэх</th>
-          <th>Бүртгэсэн</th>
+          <th>Үйлдэл</th>
         </tr>
       </thead>
       <tbody id="ordersTableBody">
@@ -1195,7 +1387,7 @@ function parseNaturalOrderText(rawText) {
     if (amount) result.advancePayment = amount;
   }
 
-  const addressMatch = rawText.match(/хаяг\s*[:=：]\s*([^\n]+)/i);
+  const addressMatch = rawText.match(/хаяг\s*(?:[:=：-]\s*|\s+)([^\n]+)/i);
   if (addressMatch) {
     result.deliveryAddress = addressMatch[1].trim().replace(/[.\s]+$/, "");
   }
@@ -1362,7 +1554,7 @@ function parseImportText(rawText) {
 
   // Inline address support for sentences containing "... Хаяг: ..."
   if (!result.deliveryAddress) {
-    const inlineAddress = rawText.match(/хаяг\s*[:=：]\s*([^\n]+)/i);
+    const inlineAddress = rawText.match(/хаяг\s*(?:[:=：-]\s*|\s+)([^\n]+)/i);
     if (inlineAddress) {
       result.deliveryAddress = inlineAddress[1].trim().replace(/[.\s]+$/, "");
     }
@@ -1394,8 +1586,11 @@ function setSelectValue(group, name, value) {
   let trimmed = (value || "").trim();
 
   // Canonical mappings for common spoken inputs.
-  if (name === "type" && trimmed.toLowerCase().includes("олбог")) {
-    trimmed = "Нэхий олбог";
+  if (name === "type") {
+    const lower = trimmed.toLowerCase();
+    if (lower.includes("олбог") || lower.includes("нэхий")) {
+      trimmed = "Нэхий олбог";
+    }
   }
 
   if (!trimmed) {
@@ -1898,6 +2093,66 @@ function renderOrders(orders) {
   renderGroupedOrders(groups);
 }
 
+function escapeHtml(value) {
+  return (value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getStatusInfo(status, overdue) {
+  if (status === "Авсан") return { cls: "received", label: "Авсан" };
+  if (status === "Бэлэн болсон") return { cls: "ready", label: "Бэлэн болсон" };
+  if (status === "Хийгдэж байгаа") return { cls: overdue ? "overdue" : "inprogress", label: overdue ? "Хоцорсон" : "Хийгдэж байгаа" };
+  return { cls: overdue ? "overdue" : "inprogress", label: overdue ? "Хоцорсон" : "Хүлээгдэж байна" };
+}
+
+function toggleGroupDetails(groupId) {
+  const row = document.getElementById(`details-${groupId}`);
+  if (!row) return;
+  row.classList.toggle("hidden");
+}
+
+function toggleGroupEdit(groupId, show) {
+  const panel = document.getElementById(`edit-panel-${groupId}`);
+  if (!panel) return;
+  panel.classList.toggle("hidden", !show);
+}
+
+async function saveGroupEdit(groupId, row) {
+  const getValue = (name) => {
+    const el = document.getElementById(`${name}-${groupId}`);
+    return el ? el.value : "";
+  };
+
+  const formData = new FormData();
+  formData.append("type", getValue("edit-type"));
+  formData.append("size", getValue("edit-size"));
+  formData.append("color", getValue("edit-color"));
+  formData.append("pattern", getValue("edit-pattern"));
+  formData.append("patternColor", getValue("edit-patternColor"));
+  formData.append("quantity", getValue("edit-quantity"));
+  formData.append("deliveryDate", getValue("edit-deliveryDate"));
+  formData.append("deliveryType", getValue("edit-deliveryType"));
+  formData.append("deliveryAddress", getValue("edit-deliveryAddress"));
+  formData.append("registeredBy", getValue("edit-registeredBy"));
+
+  try {
+    const res = await fetch(`/orders/${row}/edit`, { method: "POST", body: formData });
+    if (!res.ok) {
+      alert("Засвар хадгалах үед алдаа гарлаа");
+      return;
+    }
+    toggleGroupEdit(groupId, false);
+    await loadOrders();
+  } catch (error) {
+    console.error("Edit save error:", error);
+    alert("Засвар хадгалах үед алдаа гарлаа");
+  }
+}
+
 function renderGroupedOrders(groups) {
   const container = document.getElementById("ordersContainer");
   const table = document.getElementById("ordersTable");
@@ -1913,6 +2168,12 @@ function renderGroupedOrders(groups) {
 
   container.innerHTML = "";
   table.style.display = "table";
+
+  groups.sort((a, b) => {
+    const aTime = new Date((a.items[0] && a.items[0].timestamp) || 0).getTime();
+    const bTime = new Date((b.items[0] && b.items[0].timestamp) || 0).getTime();
+    return aTime - bTime;
+  });
 
   let orderIndex = 1;
   groups.forEach(group => {
@@ -1937,20 +2198,22 @@ function renderGroupedOrders(groups) {
     const today = new Date();
     const groupDaysRemaining = Math.max(0, Math.ceil((groupDel - today) / (1000 * 60 * 60 * 24)));
     const totalDays = 7;
+    const duePercent = Math.max(0, Math.min(100, Math.round((groupDaysRemaining / totalDays) * 100)));
+    const overdue = groupDaysRemaining <= 0 && groupStatus !== "Авсан" && groupStatus !== "Бэлэн болсон";
+    const statusInfo = getStatusInfo(groupStatus, overdue);
+    const groupId = `g${orderIndex}`;
 
-    // Create progress boxes once per group
-    let progressHTML = '<div class="progress-boxes">';
-    const visible = Math.max(0, Math.min(totalDays, groupDaysRemaining));
-    const hue = Math.round((visible / totalDays) * 120);
-    for (let i = 0; i < totalDays; i++) {
-      const label = i + 1;
-      if (i < visible) {
-        progressHTML += `<div class="progress-box" style="background:hsl(${hue},70%,45%);">${label}</div>`;
-      } else {
-        progressHTML += `<div class="progress-box empty">${label}</div>`;
-      }
-    }
-    progressHTML += '</div>';
+    const statusHtml = `
+      <div class="status-pill ${statusInfo.cls}">${escapeHtml(statusInfo.label)}</div>
+      <div class="due-text">${groupDaysRemaining > 0 ? `Үлдсэн: ${groupDaysRemaining} хоног` : "Хугацаа тулсан"}</div>
+      <div class="due-bar"><div class="due-fill" style="width:${duePercent}%"></div></div>
+      <select class="status-select" data-row="${firstItem.row}" onchange="updateOrderStatus(this)">
+        <option value="" ${groupStatus === "" ? "selected" : ""} disabled>Сонгох</option>
+        <option value="Хийгдэж байгаа" ${groupStatus === "Хийгдэж байгаа" ? "selected" : ""}>Хийгдэж байгаа</option>
+        <option value="Бэлэн болсон" ${groupStatus === "Бэлэн болсон" ? "selected" : ""}>Бэлэн болсон</option>
+        <option value="Авсан" ${groupStatus === "Авсан" ? "selected" : ""}>Авсан</option>
+      </select>
+    `;
 
     items.forEach((order, idx) => {
       const row = document.createElement('tr');
@@ -1958,18 +2221,6 @@ function renderGroupedOrders(groups) {
       row.dataset.row = order.row;
       row.dataset.group = group.key;
       row.dataset.overdue = groupDaysRemaining <= 0 ? "true" : "false";
-
-      if (groupStatus === "Авсан") {
-        row.classList.add("status-ready");
-      } else if (groupStatus === "Бэлэн болсон") {
-        row.classList.add("status-received");
-      } else if (groupStatus === "Хийгдэж байгаа") {
-        row.classList.add("status-inprogress");
-      }
-
-      if (groupDaysRemaining <= 0 && groupStatus !== "Авсан" && groupStatus !== "Бэлэн болсон") {
-        row.classList.add("status-overdue");
-      }
 
       if (idx === items.length - 1) row.classList.add("group-end");
 
@@ -1979,60 +2230,103 @@ function renderGroupedOrders(groups) {
         row.dataset.advance = advanceText;
         row.dataset.balance = balanceText;
         rowHtml += `<td rowspan="${items.length}">${orderIndex}</td>`;
-        rowHtml += `<td rowspan="${items.length}">${order.phone}</td>`;
+        rowHtml += `<td rowspan="${items.length}">${escapeHtml(order.phone || "")}</td>`;
       }
 
       rowHtml += `
-        <td>${order.type || ""}</td>
-        <td>${order.size || ""}</td>
-        <td>${order.color || ""}</td>
-        <td>${order.pattern || ""}</td>
-        <td>${order.patternColor || ""}</td>
-        <td>${order.quantity || ""}</td>
+        <td class="item-cell">
+          <div class="item-main">${escapeHtml(order.type || "")}</div>
+          <div class="item-sub">${escapeHtml(order.size || "")} | ${escapeHtml(order.color || "")}</div>
+          <div class="item-sub">${escapeHtml(order.pattern || "")} | ${escapeHtml(order.patternColor || "")}</div>
+        </td>
+        <td>${escapeHtml(order.quantity || "")}</td>
       `;
 
       if (idx === 0) {
-        rowHtml += `<td rowspan="${items.length}">${progressHTML}</td>`;
         rowHtml += `
+          <td rowspan="${items.length}">${escapeHtml(groupDelDate)}</td>
+          <td rowspan="${items.length}">${escapeHtml(firstItem.deliveryAddress || "-")}</td>
+          <td rowspan="${items.length}">${statusHtml}</td>
           <td rowspan="${items.length}">
-            <select class="status-select" data-row="${order.row}" onchange="updateOrderStatus(this)">
-              <option value="" ${groupStatus === "" ? "selected" : ""} disabled>Сонгох</option>
-              <option value="Хийгдэж байгаа" ${groupStatus === "Хийгдэж байгаа" ? "selected" : ""}>Хийгдэж байгаа</option>
-              <option value="Бэлэн болсон" ${groupStatus === "Бэлэн болсон" ? "selected" : ""}>Бэлэн болсон</option>
-              <option value="Авсан" ${groupStatus === "Авсан" ? "selected" : ""}>Авсан</option>
-            </select>
+            <div class="order-actions">
+              <button type="button" class="tiny-btn details-btn" onclick="toggleGroupDetails('${groupId}')">Дэлгэрэнгүй</button>
+              <button type="button" class="tiny-btn edit-btn" onclick="toggleGroupEdit('${groupId}', true)">Засах</button>
+            </div>
           </td>
-          <td rowspan="${items.length}">${totalText}</td>
-          <td rowspan="${items.length}">${advanceText}</td>
-          <td rowspan="${items.length}" class="balance-cell">${balanceText}</td>
-          <td rowspan="${items.length}">
-            <select class="status-select paid-select" data-row="${order.row}">
-              <option value="Тийм" ${paidText === "Тийм" ? "selected" : ""}>Тийм</option>
-              <option value="Үгүй" ${paidText === "Үгүй" ? "selected" : ""}>Үгүй</option>
-            </select>
-          </td>
-          <td rowspan="${items.length}">${order.registeredBy || ""}</td>
         `;
       }
 
       row.innerHTML = rowHtml;
       tbody.appendChild(row);
-
-      if (idx === 0) {
-        const paidSelect = row.querySelector(".paid-select");
-        const balanceCell = row.querySelector(".balance-cell");
-        if (paidSelect) {
-          paidSelect.addEventListener("change", (event) => {
-            const newValue = event.target.value;
-            const newBalance = newValue === "Тийм" ? "0" : (row.dataset.balance || "");
-            if (balanceCell) balanceCell.textContent = newBalance;
-            updatePaidStatus(row, newValue);
-          });
-        }
-      }
     });
+
+    const detailsRow = document.createElement("tr");
+    detailsRow.className = "details-row hidden";
+    detailsRow.id = `details-${groupId}`;
+    detailsRow.dataset.row = firstItem.row;
+    detailsRow.dataset.total = totalText;
+    detailsRow.dataset.advance = advanceText;
+    detailsRow.dataset.balance = balanceText;
+    detailsRow.innerHTML = `
+      <td colspan="8">
+        <div class="details-panel">
+          <div class="details-grid">
+            <div class="details-card"><span class="label">Нийт төлбөр</span><span class="value">${escapeHtml(totalText || "-")}</span></div>
+            <div class="details-card"><span class="label">Урьдчилгаа</span><span class="value">${escapeHtml(advanceText || "-")}</span></div>
+            <div class="details-card"><span class="label">Үлдэгдэл</span><span class="value" id="balance-value-${groupId}">${escapeHtml(balanceText || "-")}</span></div>
+            <div class="details-card">
+              <span class="label">Төлөгдсөн эсэх</span>
+              <select class="status-select paid-select" id="paid-select-${groupId}">
+                <option value="Тийм" ${paidText === "Тийм" ? "selected" : ""}>Тийм</option>
+                <option value="Үгүй" ${paidText === "Үгүй" ? "selected" : ""}>Үгүй</option>
+              </select>
+            </div>
+            <div class="details-card"><span class="label">Бүртгэсэн</span><span class="value">${escapeHtml(firstItem.registeredBy || "-")}</span></div>
+          </div>
+          <div class="address-text"><b>Хаяг:</b> ${escapeHtml(firstItem.deliveryAddress || "-")}</div>
+
+          <div class="edit-panel hidden" id="edit-panel-${groupId}">
+            <div class="edit-grid">
+              <input id="edit-type-${groupId}" value="${escapeHtml(firstItem.type || "")}" placeholder="Төрөл">
+              <input id="edit-size-${groupId}" value="${escapeHtml(firstItem.size || "")}" placeholder="Хэмжээ">
+              <input id="edit-color-${groupId}" value="${escapeHtml(firstItem.color || "")}" placeholder="Өнгө">
+              <input id="edit-pattern-${groupId}" value="${escapeHtml(firstItem.pattern || "")}" placeholder="Хээ">
+              <input id="edit-patternColor-${groupId}" value="${escapeHtml(firstItem.patternColor || "")}" placeholder="Хээний өнгө">
+              <input id="edit-quantity-${groupId}" value="${escapeHtml(firstItem.quantity || "")}" placeholder="Тоо">
+              <input id="edit-deliveryDate-${groupId}" value="${escapeHtml(firstItem.deliveryDate || "")}" placeholder="Огноо YYYY-MM-DD">
+              <input id="edit-deliveryType-${groupId}" value="${escapeHtml(firstItem.deliveryType || "")}" placeholder="Хүргэлтийн төрөл">
+              <input id="edit-registeredBy-${groupId}" value="${escapeHtml(firstItem.registeredBy || "")}" placeholder="Бүртгэсэн">
+              <textarea id="edit-deliveryAddress-${groupId}" rows="2" placeholder="Хаяг">${escapeHtml(firstItem.deliveryAddress || "")}</textarea>
+            </div>
+            <div class="edit-actions">
+              <button type="button" class="tiny-btn save-btn" onclick="saveGroupEdit('${groupId}', ${firstItem.row})">Хадгалах</button>
+              <button type="button" class="tiny-btn cancel-btn" onclick="toggleGroupEdit('${groupId}', false)">Болих</button>
+            </div>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(detailsRow);
+
+    const paidSelect = document.getElementById(`paid-select-${groupId}`);
+    const balanceValue = document.getElementById(`balance-value-${groupId}`);
+    if (paidSelect) {
+      paidSelect.addEventListener("change", (event) => {
+        const newValue = event.target.value;
+        const newBalance = newValue === "Тийм" ? "0" : (detailsRow.dataset.balance || "");
+        if (balanceValue) balanceValue.textContent = newBalance || "-";
+        updatePaidStatus(detailsRow, newValue);
+      });
+    });
+
     orderIndex += 1;
   });
+
+  const wrapper = document.querySelector(".table-wrapper");
+  if (wrapper && groups.length > 5) {
+    // Show latest 5 at first view; older entries are available by scrolling up.
+    wrapper.scrollTop = wrapper.scrollHeight;
+  }
 }
 
 async function updateOrderStatus(select) {
@@ -2047,31 +2341,13 @@ async function updateOrderStatus(select) {
       body: formData
     });
     
-    if (res.ok) {
-      // Update styling for all rows in the same group
-      const rowElement = document.getElementById(`order-row-${row}`);
-      const groupKey = rowElement ? rowElement.dataset.group : "";
-      const groupRows = groupKey
-        ? document.querySelectorAll(`tr[data-group="${groupKey}"]`)
-        : [rowElement].filter(Boolean);
-
-      groupRows.forEach(el => {
-        el.classList.remove("status-ready", "status-received", "status-inprogress", "status-overdue");
-
-        if (status === "Авсан") {
-          el.classList.add("status-ready");
-        } else if (status === "Бэлэн болсон") {
-          el.classList.add("status-received");
-        } else if (status === "Хийгдэж байгаа") {
-          el.classList.add("status-inprogress");
-          const overdueFlag = el.dataset.overdue === "true";
-          if (overdueFlag) el.classList.add("status-overdue");
-        }
-      });
-    } else {
+    if (!res.ok) {
       alert("Статус шинэчлэхээр алдаа гарлаа");
-      loadOrders(); // Reload to reset dropdown
+      await loadOrders();
+      return;
     }
+
+    await loadOrders();
   } catch (error) {
     console.error("Error updating status:", error);
     alert("Статус шинэчлэхээр алдаа гарлаа");

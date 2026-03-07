@@ -426,3 +426,46 @@ def update_order_payment(
         print(f"⚠️ Error updating payment: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
+
+@app.post("/orders/{row}/edit")
+def edit_order_row(
+    row: int,
+    type: str = Form(""),
+    size: str = Form(""),
+    color: str = Form(""),
+    pattern: str = Form(""),
+    patternColor: str = Form(""),
+    quantity: str = Form(""),
+    deliveryDate: str = Form(""),
+    deliveryType: str = Form(""),
+    deliveryAddress: str = Form(""),
+    registeredBy: str = Form(""),
+):
+    """Edit order row fields in Google Sheets."""
+    try:
+        if not sheet:
+            return JSONResponse({"error": "Google Sheets not available"}, status_code=500)
+
+        # Item columns
+        sheet.update_cell(row, 4, type)
+        sheet.update_cell(row, 5, size)
+        sheet.update_cell(row, 6, color)
+        sheet.update_cell(row, 7, pattern)
+        sheet.update_cell(row, 8, patternColor)
+        sheet.update_cell(row, 9, quantity)
+
+        # Delivery/date columns
+        sheet.update_cell(row, 10, deliveryDate)
+        # Keep order duration/date column aligned for new schema
+        sheet.update_cell(row, 11, deliveryDate)
+        sheet.update_cell(row, 12, deliveryType)
+
+        # New schema address + registeredBy positions
+        sheet.update_cell(row, 18, deliveryAddress)
+        sheet.update_cell(row, 19, registeredBy)
+
+        return {"status": "success"}
+    except Exception as e:
+        print(f"⚠️ Error editing order row: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
