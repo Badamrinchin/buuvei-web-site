@@ -3,6 +3,7 @@ from typing import List
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 from google.oauth2.service_account import Credentials
 import gspread
@@ -50,6 +51,10 @@ except Exception as e:
     print(f"⚠️ Google Sheets not available: {e}")
 
 last_submit = {}
+
+
+class DeleteOrdersPayload(BaseModel):
+    rows: List[int]
 
 
 def send_order_email(order_data):
@@ -322,7 +327,12 @@ def get_orders():
         # Get all values from the sheet
         all_values = sheet.get_all_values()
         
-        # Skip header row (if exists) and get only order data (category = "Захиалга")
+        # Skip header row (if exists) and return only real order rows.
+        # Non-order registrations (e.g. Нэхий олбог, Үхрийн шир, Хурганы арьс)
+        # must stay in Sheets only and should never appear in the web orders list.
+        def is_order_category(value: str) -> bool:
+            return (value or "").strip().lower() == "захиалга"
+
         orders = []
         for i, row in enumerate(all_values[1:], start=2):  # Start from row 2 (skip header)
             if len(row) >= 10:  # Ensure row has enough columns
@@ -330,8 +340,8 @@ def get_orders():
                 # Column mapping (new): [timestamp, phone, category, type, size, color, pattern, patternColor, quantity, deliveryDate, registeredBy, deliveryType, status, total, advance, balance, paid, deliveryAddress]
                 # Column mapping (old): [timestamp, phone, category, type, size, color, pattern, patternColor, deliveryDate, registeredBy, deliveryType, status, total, advance, balance, paid]
                 category = row[2] if len(row) > 2 else ""
-                
-                if category == "Захиалга":
+
+                if is_order_category(category):
                     has_quantity = len(row) >= 17
                     has_address = len(row) >= 18
                     has_registered_last = len(row) >= 19
@@ -471,5 +481,25 @@ def edit_order_row(
         return {"status": "success"}
     except Exception as e:
         print(f"⚠️ Error editing order row: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/orders/delete")
+def delete_order_rows(payload: DeleteOrdersPayload):
+    """Delete one order group by removing all provided sheet rows."""
+    try:
+        if not sheet:
+            return JSONResponse({"error": "Google Sheets not available"}, status_code=500)
+
+        rows = sorted({int(r) for r in payload.rows if int(r) > 1}, reverse=True)
+        if not rows:
+            return JSONResponse({"error": "No valid rows to delete"}, status_code=400)
+
+        for row in rows:
+            sheet.delete_rows(row)
+
+        return {"status": "success", "deleted": len(rows)}
+    except Exception as e:
+        print(f"⚠️ Error deleting order rows: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 

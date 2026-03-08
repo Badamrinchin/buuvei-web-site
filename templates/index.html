@@ -416,7 +416,9 @@ button:disabled{
 
 .order-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -433,6 +435,10 @@ button:disabled{
 
 .tiny-btn.edit-btn {
   background: #0891b2;
+}
+
+.tiny-btn.delete-btn {
+  background: #dc2626;
 }
 
 .details-row {
@@ -2472,6 +2478,41 @@ async function saveGroupEdit(groupId, row) {
   }
 }
 
+async function deleteGroupOrders(groupId) {
+  const groupRows = Array.from(document.querySelectorAll(`#ordersTableBody tr[data-group-id="${groupId}"][data-row]`));
+  const rows = groupRows
+    .map((row) => Number(row.dataset.row))
+    .filter((row) => Number.isInteger(row) && row > 0);
+
+  if (rows.length === 0) {
+    alert("Устгах мөр олдсонгүй");
+    return;
+  }
+
+  if (!confirm(`Энэ захиалгыг устгах уу? (${rows.length} мөр)`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch("/orders/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows })
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "Захиалга устгах үед алдаа гарлаа");
+      return;
+    }
+
+    await loadOrders();
+  } catch (error) {
+    console.error("Delete order error:", error);
+    alert("Захиалга устгах үед алдаа гарлаа");
+  }
+}
+
 function renderGroupedOrders(groups) {
   const container = document.getElementById("ordersContainer");
   const table = document.getElementById("ordersTable");
@@ -2539,6 +2580,7 @@ function renderGroupedOrders(groups) {
       row.id = `order-row-${order.row}`;
       row.dataset.row = order.row;
       row.dataset.group = group.key;
+      row.dataset.groupId = groupId;
       row.dataset.overdue = groupDaysRemaining <= 0 ? "true" : "false";
 
       if (idx === items.length - 1) row.classList.add("group-end");
@@ -2569,6 +2611,7 @@ function renderGroupedOrders(groups) {
             <div class="order-actions">
               <button type="button" class="tiny-btn details-btn" onclick="toggleGroupDetails('${groupId}')">Дэлгэрэнгүй</button>
               <button type="button" class="tiny-btn edit-btn" onclick="toggleGroupEdit('${groupId}', true)">Засах</button>
+              <button type="button" class="tiny-btn delete-btn" onclick="deleteGroupOrders('${groupId}')">Устгах</button>
             </div>
           </td>
         `;
@@ -2582,6 +2625,7 @@ function renderGroupedOrders(groups) {
     detailsRow.className = "details-row hidden";
     detailsRow.id = `details-${groupId}`;
     detailsRow.dataset.row = firstItem.row;
+    detailsRow.dataset.groupId = groupId;
     detailsRow.dataset.total = totalText;
     detailsRow.dataset.advance = advanceText;
     detailsRow.dataset.balance = balanceText;
