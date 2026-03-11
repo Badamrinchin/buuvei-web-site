@@ -184,6 +184,8 @@ async def register(
     balancePayment: str = Form(""),
     paid: str = Form("")
 ):
+    phone = re.sub(r"\D", "", phone or "")
+
     if not re.fullmatch(r"\d{8}", phone):
         return JSONResponse({"error": "Утас 8 оронтой байх ёстой"}, status_code=400)
 

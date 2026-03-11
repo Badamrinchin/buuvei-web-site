@@ -922,7 +922,7 @@ button:disabled{
 
 <div class="field">
   <label>Утас</label>
-  <input name="phone" required pattern="\d{8}" maxlength="8" placeholder="8 оронтой утас">
+  <input name="phone" required pattern="[0-9\s-]{8,12}" maxlength="12" inputmode="numeric" placeholder="8 оронтой утас">
 </div>
 
 <div class="field">
@@ -1919,6 +1919,12 @@ if (applyTextImportBtn) {
 
 form.onsubmit=async e=>{
   e.preventDefault();
+
+  const phoneInput = form.querySelector('input[name="phone"]');
+  if (phoneInput) {
+    phoneInput.value = (phoneInput.value || "").replace(/\D/g, "").slice(0, 8);
+  }
+
   btn.disabled=true;
   btn.textContent="Илгээж байна...";
 
